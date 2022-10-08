@@ -92,6 +92,7 @@ def test_df(df):
     return [test_row(row) for index, row in df.iterrows()]
 
 if TESTING:
+    # TODO: compare tables to show where I'm wrong
     st.markdown('---')
     st.markdown('# Tests')
 
@@ -104,7 +105,7 @@ if TESTING:
 
     st.markdown('## Simulation 2')
     st.text('Reference')
-    test_df_2 = pd.read_csv('tests/test_sim_2.csv', sep=';', index_col=False)#.iloc[-3:] # TODO: stop errors for Offshore
+    test_df_2 = pd.read_csv('tests/test_sim_2.csv', sep=';', index_col=False)
     st.dataframe(test_df_2)
     st.text('Output')
     st.table(test_df(test_df_2))

@@ -14,7 +14,8 @@ def shore(
     xhv_mcap = xhv_price * xhv_supply
     assert(xhv_mcap > 0)
     block_cap    = math.sqrt(xhv_mcap * st.session_state['static_parameters']['block_cap_mult']) # TODO: confirm this is the same for all shoring
-    mcap_ratio   = min(xassets_mcap / xhv_mcap, 0)
+    # mcap_ratio   = min(xassets_mcap / xhv_mcap, 0) # TODO: might be a logic error here
+    mcap_ratio   = xassets_mcap / xhv_mcap # TODO: might be a logic error here
     is_healthy   = mcap_ratio < st.session_state['static_parameters']['state_mcap_ratio']
     spread_ratio = 1 - mcap_ratio
 
@@ -32,6 +33,34 @@ def shore(
     if   shore_type == "Onshore":
         pass
     elif shore_type == "Offshore":
+        # spec_off = specific_offshore(
+        #     xhv_price,
+        #     xhv_qty,
+        #     xusd_qty,
+        #     xhv_supply,
+        #     xassets_mcap,
+
+        #     xhv_mcap,
+        #     # block_cap,
+        #     slippage_mult,
+        #     is_healthy,
+        # )
+        # max_off = max_offshore(
+        #     xhv_price,
+        #     xhv_qty,
+        #     xusd_qty,
+        #     xhv_supply,
+        #     xassets_mcap,
+
+        #     xhv_mcap,
+        #     # block_cap,
+        #     slippage_mult,
+        #     is_healthy,
+        # )
+        # return {
+        #     "specific_offshore": spec_off,
+        #     "max_offshore": max_off
+        #     }
         pass
 
     # TODO LOGIC SPLITS HERE
@@ -80,17 +109,44 @@ def shore(
 
     return sim
 
-def specific_offshore(xhv_qty, xhv_mcap, block_cap, slippage_mult):
+# def specific_offshore(xhv_qty, xhv_mcap, block_cap, slippage_mult):
+def specific_offshore(
+    xhv_price,
+    xhv_qty,
+    xusd_qty,
+    xhv_supply,
+    xassets_mcap,
+
+    xhv_mcap,
+    # block_cap,
+    slippage_mult,
+    is_healthy,
+):
     '''The “specific” functions are intended for when someone enters an amount in the vault,
     and it will calculate the required collateral.'''
     assert(xhv_qty >= st.session_state['static_parameters']['min_shore_amount'])
     # assert(enuff unlocked)
+    # ensure offshore amount is not greater than block cap
+    block_cap = math.sqrt(xhv_mcap * st.session_state['static_parameters']['block_cap_mult'])
+    assert(block_cap >= xhv_qty)
 
+
+    # st.session_state['static_parameters']['mcap_ratio_mult'] # mcapRatioMultiplier
     # current_vbs
-    # TODO: <-------------------------------------------------------------------- I was here
+    
+    mcap_ratio = xassets_mcap / xhv_mcap
     new_mcap_ratio = ((xhv_qty * xhv_price) + xassets_mcap) / ((xhv_supply - xhv_qty) * xhv_price)
+
+    if mcap_ratio <= 0:
     # mcap_ratio_increase = ()
-    increase_ratio = new_mcap_ratio # TODOing: <-------------------------------------------------------------------- I was here
+        increase_ratio = new_mcap_ratio
+        current_vbs = 0
+    else:
+        increase_ratio = abs((new_mcap_ratio / mcap_ratio) -1) # TODO: did the author use the right formula here?
+        mcap_vbs = math.exp((mcap_ratio + math.sqrt(mcap_ratio)) * 2) - 0.5 if is_healthy else \
+                math.sqrt(mcap_ratio) * st.session_state['static_parameters']['mcap_ratio_mult']
+        current_vbs = mcap_vbs
+
     slippage_vbs = math.sqrt(increase_ratio) * slippage_mult
     total_vbs = max(current_vbs + slippage_vbs, st.session_state['static_parameters']['min_vbs'])
     total_collateral = math.floor((xhv_qty * total_vbs) + xhv_qty)
@@ -98,7 +154,18 @@ def specific_offshore(xhv_qty, xhv_mcap, block_cap, slippage_mult):
 
 
 
-def max_offshore():
+def max_offshore(
+    xhv_price,
+    xhv_qty,
+    xusd_qty,
+    xhv_supply,
+    xassets_mcap,
+
+    xhv_mcap,
+    # block_cap,
+    slippage_mult,
+    is_healthy,
+):
     '''The “max” functions are intended for when the user wants to offshore or onshore the
     maximum amount possible. This will allow us to introduce a “Max” button in the vault,
     which will save users a lot of time trying to guess what that maximum value might be.'''
