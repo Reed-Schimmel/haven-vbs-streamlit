@@ -6,7 +6,7 @@ import streamlit as st
 from vbs import specific_offshore, specific_onshore, max_offshore, max_onshore
 
 
-APP_VERSION = "0.0.1"
+APP_VERSION = "0.0.2"
 PROPOSAL_VERSION = 4
 
 
@@ -30,18 +30,20 @@ st.caption(f"Proposal Version {PROPOSAL_VERSION} | Simulator Version {APP_VERSIO
 if 'simulation_list' not in st.session_state:
     st.session_state['simulation_list'] = []
 
-with st.expander("Static Parameters", expanded=False):
-    min_vbs = st.number_input('Minimum VBS', value=1)
-    min_shore_amount = st.number_input('Minimum amount of XHV that can be on/offshored', value=1)
-    block_cap_mult = st.number_input('Multiplier which calculates the amount one can on/offshore inside a single block', value=2500)
-    mcap_ratio_mult = st.number_input('Multiplier for working out the mcap VBS', value=40)
-    slippage_mult_good = st.number_input('During a good state, mcap ratio < 0.1, we apply a lower multiplier', value=3)
-    slippage_mult_bad = st.number_input('During a bad state, mcap ratio >= 0.1, we apply a higher multiplier', value=10)
+with st.sidebar:
+    with st.expander("Static Parameters", expanded=False):
+        st.caption('The default values are set to the latest official proposal. Adjusting these is only for hypothetical VBS rules. These changes must be made before the first simulation.')
+        min_vbs = st.number_input('Minimum VBS', value=1)
+        min_shore_amount = st.number_input('Minimum amount of XHV that can be on/offshored', value=1)
+        block_cap_mult = st.number_input('Multiplier which calculates the amount one can on/offshore inside a single block', value=2500)
+        mcap_ratio_mult = st.number_input('Multiplier for working out the mcap VBS', value=40)
+        slippage_mult_good = st.number_input('During a good state, mcap ratio < 0.1, we apply a lower multiplier', value=3)
+        slippage_mult_bad = st.number_input('During a bad state, mcap ratio >= 0.1, we apply a higher multiplier', value=10)
 
-    locktime_offshore = st.number_input('Offshore lock time (days)', value=21, min_value=0, step=1)
-    locktime_onshore = st.number_input('Onshore lock time (days)', value=21, min_value=0, step=1)
-    conversion_fee_offshore = st.number_input('Offshore conversion fee (%)', value=1.5, min_value=0.0, step=0.1)
-    conversion_fee_onshore = st.number_input('Onshore conversion fee (%)', value=1.5, min_value=0.0, step=0.1)
+        locktime_offshore = st.number_input('Offshore lock time (days)', value=21, min_value=0, step=1)
+        locktime_onshore = st.number_input('Onshore lock time (days)', value=21, min_value=0, step=1)
+        conversion_fee_offshore = st.number_input('Offshore conversion fee (%)', value=1.5, min_value=0.0, step=0.1)
+        conversion_fee_onshore = st.number_input('Onshore conversion fee (%)', value=1.5, min_value=0.0, step=0.1)
 
 st.markdown('---')
 
