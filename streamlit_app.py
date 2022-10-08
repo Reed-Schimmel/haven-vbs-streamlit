@@ -6,7 +6,7 @@ from vbs import shore
 
 APP_VERSION = "0.0.2"
 PROPOSAL_VERSION = 4
-
+TESTING = True
 
 st.set_page_config(
     page_title="VBS Simulator",
@@ -74,11 +74,44 @@ if st.button(label="Add simulation to table"):
 
 st.table(st.session_state['simulation_list'])
 
-st.markdown('---')
-st.title('Tests')
-st.text('Simulation 1')
-st.dataframe(pd.read_csv('tests/test_sim_1.csv', sep=';', index_col=False))
-st.text('Simulation 2')
-st.dataframe(pd.read_csv('tests/test_sim_2.csv', sep=';', index_col=False))
-st.text('Simulation 3')
-st.dataframe(pd.read_csv('tests/test_sim_3.csv', sep=';', index_col=False))
+
+
+def test_row(row):
+    return shore( # TODO: <--------------------------------- test row
+        shore_type=row['Shore Type'],
+        xhv_price=row['XHV Price ($)'],#.astype(float),
+        xhv_qty=row['XHV (vault)'],#.astype(float),
+        xusd_qty=row['xUSD (vault)'],#.astype(float),
+        xhv_supply=row['XHV Supply'],#.astype(float),
+        xassets_mcap=row['xAssets Mcap ($)'],#.astype(float),
+    )
+
+def test_df(df):
+    # return df.apply(lambda x: [*test_row(x)], axis=1)
+    # return df.transform(test_row, axis=1)
+    return [test_row(row) for index, row in df.iterrows()]
+
+if TESTING:
+    st.markdown('---')
+    st.markdown('# Tests')
+
+    st.markdown('## Simulation 1')
+    st.text('Reference')
+    test_df_1 = pd.read_csv('tests/test_sim_1.csv', sep=';', index_col=False)
+    st.dataframe(test_df_1)
+    st.text('Output')
+    st.table(test_df(test_df_1))
+
+    st.markdown('## Simulation 2')
+    st.text('Reference')
+    test_df_2 = pd.read_csv('tests/test_sim_2.csv', sep=';', index_col=False)#.iloc[-3:] # TODO: stop errors for Offshore
+    st.dataframe(test_df_2)
+    st.text('Output')
+    st.table(test_df(test_df_2))
+
+    st.markdown('## Simulation 3')
+    st.text('Reference')
+    test_df_3 = pd.read_csv('tests/test_sim_3.csv', sep=';', index_col=False)
+    st.dataframe(test_df_3)
+    st.text('Output')
+    st.table(test_df(test_df_3))
