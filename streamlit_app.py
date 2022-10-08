@@ -6,7 +6,7 @@ from vbs import shore
 
 APP_VERSION = "0.0.2"
 PROPOSAL_VERSION = 4
-TESTING = True
+# TESTING = True
 
 st.set_page_config(
     page_title="VBS Simulator",
@@ -26,8 +26,9 @@ if 'static_parameters' not in st.session_state:
     st.session_state['static_parameters'] = {}
 
 with st.sidebar:
-    # TODO: make this invisible to make xKleinroy happy
+    show_tests = st.checkbox("Show tests", False)
     with st.expander("Static Parameters", expanded=False):
+        # TODO: make this invisible to make xKleinroy happy
         st.caption('The default values are set to the latest official proposal. Adjusting these is only for hypothetical VBS rules. These changes must be made before the first simulation.')
         st.session_state['static_parameters'] = dict(
             min_vbs = st.number_input('Minimum VBS', value=1),
@@ -95,10 +96,11 @@ def test_df(df):
     # return df.transform(test_row, axis=1)
     return [test_row(row) for index, row in df.iterrows()]
 
-if TESTING:
+if show_tests:
     # TODO: compare tables to show where I'm wrong
     st.markdown('---')
     st.markdown('# Tests')
+    st.caption("The tests below are using the old data from the PDF v4 tables. v0.0.3 will have the new data recently provided by xKleinroy.")
 
     st.markdown('## Simulation 1')
     st.text('Reference')
