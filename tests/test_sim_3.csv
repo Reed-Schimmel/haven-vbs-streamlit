@@ -1,4 +1,4 @@
-Shore Type;XHV (vault);XHV Supply;XHV Price ($);XHV Mcap ($);xAssets Mcap ($);Mcap Ratio;Spread Ratio;Mcap VBS;Spread VBS;Slippage VBS;Total VBS;Max Onshore xUSD;Max Onshore XHV;Elapsed days
+Shore Type;XHV (vault);xUSD (vault);XHV Supply;XHV Price ($);XHV Mcap ($);xAssets Mcap ($);Mcap Ratio;Spread Ratio;Mcap VBS;Spread VBS;Slippage VBS;Total VBS;Max Onshore xUSD;Max Onshore XHV;Elapsed days
 Onshore;500,000;15,000,000;28,500,000;0.56;15,960,000;16,000,000;1.003;0.000;40.050;0.000;0.000;40.050;6,991;12,484;0
 Onshore;512,484;14,993,009;28,512,484;0.50;14,256,242;15,993,009;1.122;0.000;42.366;0.000;0.000;42.366;6,048;12,096;21
 Onshore;524,580;14,986,961;28,524,580;0.48;13,691,798;15,986,961;1.168;0.000;43.223;0.000;0.000;43.223;5,825;12,135;42
