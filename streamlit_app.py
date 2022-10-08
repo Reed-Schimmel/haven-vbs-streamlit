@@ -73,3 +73,9 @@ if st.button(label="Add simulation to table"):
     st.session_state['simulation_list'].append(sim)
 
 st.table(st.session_state['simulation_list'])
+
+st.markdown('---')
+st.title('Tests')
+st.dataframe(pd.read_csv('tests/test_sim_1.csv', sep=';', index_col=False))
+st.dataframe(pd.read_csv('tests/test_sim_2.csv', sep=';', index_col=False))
+st.dataframe(pd.read_csv('tests/test_sim_3.csv', sep=';', index_col=False))
