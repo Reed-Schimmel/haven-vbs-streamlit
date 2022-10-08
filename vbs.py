@@ -14,10 +14,9 @@ def shore(
     xhv_mcap = xhv_price * xhv_supply
     assert(xhv_mcap > 0)
     block_cap    = math.sqrt(xhv_mcap * st.session_state['static_parameters']['block_cap_mult']) # TODO: confirm this is the same for all shoring
-    # mcap_ratio   = min(xassets_mcap / xhv_mcap, 0) # TODO: might be a logic error here
-    mcap_ratio   = xassets_mcap / xhv_mcap # TODO: might be a logic error here
+    mcap_ratio   = abs(xassets_mcap / xhv_mcap) # abs for sanity
     is_healthy   = mcap_ratio < st.session_state['static_parameters']['state_mcap_ratio']
-    spread_ratio = 1 - mcap_ratio
+    spread_ratio = max(1 - mcap_ratio, 0)
 
     # page 10 of PDF v4
     mcap_vbs = math.exp((mcap_ratio + math.sqrt(mcap_ratio)) * 2) - 0.5 if is_healthy else \
