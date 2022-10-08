@@ -26,6 +26,7 @@ if 'static_parameters' not in st.session_state:
     st.session_state['static_parameters'] = {}
 
 with st.sidebar:
+    # TODO: make this invisible to make xKleinroy happy
     with st.expander("Static Parameters", expanded=False):
         st.caption('The default values are set to the latest official proposal. Adjusting these is only for hypothetical VBS rules. These changes must be made before the first simulation.')
         st.session_state['static_parameters'] = dict(
@@ -74,7 +75,10 @@ if st.button(label="Add simulation to table"):
 
 st.table(st.session_state['simulation_list'])
 
-
+if st.session_state['simulation_list'] != []:
+    if st.button(label="Reset"):
+        st.session_state['simulation_list'] = []
+        st.experimental_rerun()
 
 def test_row(row):
     return shore( # TODO: <--------------------------------- test row
