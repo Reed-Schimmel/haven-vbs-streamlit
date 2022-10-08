@@ -4,7 +4,7 @@ import streamlit as st
 from vbs import shore
 
 
-APP_VERSION = "0.0.2"
+APP_VERSION = "0.0.3"
 PROPOSAL_VERSION = 4
 # TESTING = True
 
