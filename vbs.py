@@ -61,6 +61,8 @@ def shore(
         'Error Message':
         "Elapsed days":
     '''
+    assert(shore_type == "Onshore" or shore_type == "Offshore")
+
     # Universal Calculations
     xhv_mcap = xhv_price * xhv_supply
     assert(xhv_mcap > 0)
