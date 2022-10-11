@@ -97,48 +97,48 @@ if st.session_state['simulation_list'] != []:
         st.session_state['simulation_list'] = []
         st.experimental_rerun()
 
-### ----------------- TESTS ------------------------
-st.markdown('---')
-def test_row(row):
-    return shore( # TODO: <--------------------------------- test row
-        shore_type=row['Shore Type'],
-        xhv_price=row['XHV Price ($)'],#.astype(float),
-        xhv_qty=row['XHV (vault)'],#.astype(float),
-        xusd_qty=row['xUSD (vault)'],#.astype(float),
-        xhv_supply=row['XHV Supply'],#.astype(float),
-        xassets_mcap=row['xAssets Mcap ($)'],#.astype(float),
-        static_parameters=st.session_state['static_parameters'],
-    )
+# ### ----------------- TESTS ------------------------
+# st.markdown('---')
+# def test_row(row):
+#     return shore( # TODO: <--------------------------------- test row
+#         shore_type=row['Shore Type'],
+#         xhv_price=row['XHV Price ($)'],#.astype(float),
+#         xhv_qty=row['XHV (vault)'],#.astype(float),
+#         xusd_qty=row['xUSD (vault)'],#.astype(float),
+#         xhv_supply=row['XHV Supply'],#.astype(float),
+#         xassets_mcap=row['xAssets Mcap ($)'],#.astype(float),
+#         static_parameters=st.session_state['static_parameters'],
+#     )
 
-def test_df(df):
-    # return df.apply(lambda x: [*test_row(x)], axis=1)
-    # return df.transform(test_row, axis=1)
-    return [test_row(row) for index, row in df.iterrows()]
+# def test_df(df):
+#     # return df.apply(lambda x: [*test_row(x)], axis=1)
+#     # return df.transform(test_row, axis=1)
+#     return [test_row(row) for index, row in df.iterrows()]
 
-show_tests = st.checkbox("Show tests", False)
-if show_tests:
-    # TODO: compare tables to show where I'm wrong
-    st.markdown('---')
-    st.markdown('# Tests')
-    st.caption("The tests below are using the old data from the PDF v4 tables. v0.0.3 will have the new data recently provided by xKleinroy.")
+# show_tests = st.checkbox("Show tests", False)
+# if show_tests:
+#     # TODO: compare tables to show where I'm wrong
+#     st.markdown('---')
+#     st.markdown('# Tests')
+#     st.caption("The tests below are using the old data from the PDF v4 tables. v0.0.3 will have the new data recently provided by xKleinroy.")
 
-    st.markdown('## Simulation 1')
-    st.text('Reference')
-    test_df_1 = pd.read_csv('tests/test_sim_1.csv', sep=';', index_col=False)
-    st.dataframe(test_df_1)
-    st.text('Output')
-    st.table(test_df(test_df_1))
+#     st.markdown('## Simulation 1')
+#     st.text('Reference')
+#     test_df_1 = pd.read_csv('tests/test_sim_1.csv', sep=';', index_col=False)
+#     st.dataframe(test_df_1)
+#     st.text('Output')
+#     st.table(test_df(test_df_1))
 
-    st.markdown('## Simulation 2')
-    st.text('Reference')
-    test_df_2 = pd.read_csv('tests/test_sim_2.csv', sep=';', index_col=False)
-    st.dataframe(test_df_2)
-    st.text('Output')
-    st.table(test_df(test_df_2))
+#     st.markdown('## Simulation 2')
+#     st.text('Reference')
+#     test_df_2 = pd.read_csv('tests/test_sim_2.csv', sep=';', index_col=False)
+#     st.dataframe(test_df_2)
+#     st.text('Output')
+#     st.table(test_df(test_df_2))
 
-    st.markdown('## Simulation 3')
-    st.text('Reference')
-    test_df_3 = pd.read_csv('tests/test_sim_3.csv', sep=';', index_col=False)
-    st.dataframe(test_df_3)
-    st.text('Output')
-    st.table(test_df(test_df_3))
+#     st.markdown('## Simulation 3')
+#     st.text('Reference')
+#     test_df_3 = pd.read_csv('tests/test_sim_3.csv', sep=';', index_col=False)
+#     st.dataframe(test_df_3)
+#     st.text('Output')
+#     st.table(test_df(test_df_3))
