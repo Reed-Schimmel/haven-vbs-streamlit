@@ -242,8 +242,8 @@ if __name__ == "__main__":
         # return df.transform(test_row, axis=1)
         return [test_row(row) for index, row in df.iterrows()]
 
-    def run_tests(files):
-        df = pd.read_csv(files[0], sep='\t') # TODO: all files
+    def run_test(test_file, verbose=False, show_all=False):
+        df = pd.read_csv(test_file, sep='\t')
         df['XHV Mcap'] = df['XHV Mcap'].astype(int)
         # print(df.head())
         
@@ -252,13 +252,29 @@ if __name__ == "__main__":
         # print(results_df.head())
 
         # print(df.equals(results_df))
-        compare_df = df != results_df[df.columns]
-        # correct_cols = [ col == True for col in compare_df.all() ]
+        same_df = df == results_df[df.columns]
+        diff_df = df != results_df[df.columns]
+        # correct_cols = [ col == True for col in diff_df.all() ]
         # print(correct_cols)
 
-        if not compare_df.all().all():
-            # print(compare_df)
-            print(df[compare_df].dropna(axis=1, how='all'))
-            print(results_df[compare_df].dropna(axis=1, how='all'))
+        if verbose:
+            if show_all:
+                print(same_df)
+                print(df)
+                print(results_df)
+            elif not same_df.all().all():
+                # print(diff_df)
+                print(df[diff_df].dropna(axis=1, how='all'))
+                print(results_df[diff_df].dropna(axis=1, how='all'))
 
-    run_tests(['tests/Simulation_1.csv'])
+            print("Column: Passed")
+            print(same_df.all())
+        else:
+            print("Passed" if same_df.all().all() else "Failed")
+        
+    def run_tests(files, show_all=False):
+        for test_file in files:
+            print(test_file)
+            run_test(test_file) # TODO add verbose and stuff
+
+    run_tests(['tests/Simulation_1.csv', 'tests/Simulation_2.csv', 'tests/Simulation_3.csv'], False)
