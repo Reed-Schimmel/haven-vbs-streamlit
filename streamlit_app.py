@@ -71,6 +71,7 @@ if st.button(label="Add simulation to table"):
         xusd_qty,
         xhv_supply,
         xassets_mcap,
+        static_parameters=st.session_state['static_parameters'],
     )
     st.session_state['simulation_list'].append(sim)
 
@@ -89,6 +90,7 @@ def test_row(row):
         xusd_qty=row['xUSD (vault)'],#.astype(float),
         xhv_supply=row['XHV Supply'],#.astype(float),
         xassets_mcap=row['xAssets Mcap ($)'],#.astype(float),
+        static_parameters=st.session_state['static_parameters'],
     )
 
 def test_df(df):
