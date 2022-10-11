@@ -11,7 +11,56 @@ def shore(
 
     static_parameters,#=st.session_state['static_parameters'],
 ):
-    
+    '''
+    (On/Off)Shore Simulation.
+
+    Entry point for calculating VBS.
+
+    Returns dictionary of inputs and outputs.
+
+    :param shore_type: (str) valid inputs are "Onshore" and "Offshore".
+    :param xhv_price: (float) XHV Price.
+    :param xhv_qty: (float) Amount of unlocked XHV in vault.
+    :param xusd_qty: (float) Amount of unlocked xUSD in vault.
+    :param xhv_supply: (float) Number of XHV in circulation.
+    :param xassets_mcap: (float) Market cap of all assets (in USD).
+    :param static_parameters: (dict) VBS rule values for current proposal.
+        min_vbs = 1,
+        min_shore_amount = 1,
+        block_cap_mult   = 2500,
+        mcap_ratio_mult  = 40,
+        
+        # For changing the condition for "good" and "bad" protocol state
+        state_mcap_ratio = 0.9,
+        slippage_mult_good = 3,
+        slippage_mult_bad  = 10,
+
+        locktime_offshore = 21,
+        locktime_onshore  = 21,
+        conversion_fee_offshore = 1.5,
+        conversion_fee_onshore  = 1.5,
+    :return: (dict) TODO write me
+        "Shore Type": 
+        "XHV (vault)": 
+        "xUSD (vault)":
+        "XHV Supply": 
+        "XHV Price": 
+        "XHV Mcap": 
+        "xAssets Mcap": 
+        "Mcap Ratio": 
+        "Spread Ratio": 
+        "Mcap VBS": 
+        "Spread VBS": 
+        "Slippage VBS":
+        "Total VBS": 
+        "Max Offshore xUSD": 
+        "Max Offshore XHV": 
+        "Max Onshore xUSD": 
+        "Max Onshore XHV": 
+        'Collateral Needed (XHV)':
+        'Error Message':
+        "Elapsed days":
+    '''
     # Universal Calculations
     xhv_mcap = xhv_price * xhv_supply
     assert(xhv_mcap > 0)
