@@ -290,15 +290,15 @@ def max_offshore(
     # block_cap,
     slippage_mult,
     is_healthy,
-):
+    ):
     '''The “max” functions are intended for when the user wants to offshore or onshore the
     maximum amount possible. This will allow us to introduce a “Max” button in the vault,
     which will save users a lot of time trying to guess what that maximum value might be.'''
     pass
 
 
-#  function working out the amount of collateral required for onshores
-def specific_onshore( # TODOing: this boi <---------------------------------------
+# function working out the amount of collateral required for onshores
+def specific_onshore(
     xhv_vault,
     xhv_to_offshore,
     xusd_vault,
@@ -308,7 +308,7 @@ def specific_onshore( # TODOing: this boi <-------------------------------------
     xassets_mcap,
 
     static_parameters,#=st.session_state['static_parameters'],
-):
+    ):
     '''The “specific” functions are intended for when someone enters an amount in the vault,
     and it will calculate the required collateral.
     
