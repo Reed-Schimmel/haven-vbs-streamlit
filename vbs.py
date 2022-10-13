@@ -355,6 +355,7 @@ def specific_onshore(
     if amount_to_onshore_xhv > block_cap:
         err_msg += "onshore amount greater than block limit\n"
 
+    # mcap_ratio   = xassets_mcap / xhv_mcap # cannot be < 0
     mcap_ratio   = max(xassets_mcap / xhv_mcap, 0) # cannot be < 0
     spread_ratio = max(1 - mcap_ratio, 0)
     # spread_ratio = 1 - mcap_ratio if mcap_ratio < 1 else 0
@@ -531,7 +532,7 @@ if __name__ == "__main__":
         return df
 
     def test_spec_onshore(test_file):
-        df = pd.read_csv(test_file, sep='\t')
+        df = pd.read_csv(test_file, sep='\t').iloc[:10]
 
         def test_spec_row(row):
             return specific_onshore(
@@ -547,6 +548,21 @@ if __name__ == "__main__":
             )
         results_df = pd.DataFrame(test_df(df, test_spec_row))
         results_df = results_df.astype(df.dtypes.to_dict())
+
+        # compare_df(df, results_df, 'truth')
+
+        # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.testing.assert_frame_equal.html
+        return pd.testing.assert_frame_equal(
+            left=df.drop('Error Message', axis=1),
+            right=results_df.drop('Error Message', axis=1),
+            check_dtype=False,
+            check_exact=False,
+            # rtol=1e-1,
+            atol=0.1,#1e-1,
+            # check_less_precise=True,
+        )
+        
+
 
         # compare_df(df, results_df, 'truth')
         # same_df = df == results_df[df.columns]
