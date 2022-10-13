@@ -229,6 +229,28 @@ def specific_offshore(
     total_collateral = math.floor((xhv_qty * total_vbs) + xhv_qty)
     return total_collateral
 
+    return {
+        'Shore Type': 'Offshore Specific',
+        'XHV (vault)': 'TODO',
+        'XHV to offshore': 'TODO',
+        'xUSD (vault)': 'TODO',
+        'xUSD to onshore': 'TODO',
+        'XHV Supply': 'TODO',
+        'XHV Price': 'TODO',
+        'XHV Mcap': 'TODO',
+        'xAssets Mcap': 'TODO',
+        'Mcap Ratio': 'TODO',
+        'Spread Ratio': 'TODO',
+        'Mcap VBS': 'TODO',
+        'Spread VBS': 'TODO',
+        'Slippage VBS': 'TODO',
+        'Total VBS': 'TODO',
+        'Max Offshore XHV': 'TODO',
+        'Max Onshore xUSD': 'TODO',
+        'Collateral Needed (XHV)': 'TODO',
+        'Error Message': 'TODO',
+    }
+
 
 
 def max_offshore(
@@ -248,10 +270,63 @@ def max_offshore(
     which will save users a lot of time trying to guess what that maximum value might be.'''
     pass
 
-def specific_onshore():
+
+
+def specific_onshore( # TODOing: this boi <---------------------------------------
+    xhv_vault,
+    xhv_to_offshore,
+    xusd_vault,
+    xusd_to_onshore,
+    xhv_price,
+    xhv_supply,
+    xassets_mcap,
+
+    static_parameters,#=st.session_state['static_parameters'],
+):
     '''The “specific” functions are intended for when someone enters an amount in the vault,
     and it will calculate the required collateral.'''
-    pass
+
+    # # Universal Calculations
+    xhv_mcap = xhv_price * xhv_supply
+    assert(xhv_mcap > 0)
+    # block_cap    = math.sqrt(xhv_mcap * static_parameters['block_cap_mult']) # TODO: confirm this is the same for all shoring
+    mcap_ratio   = abs(xassets_mcap / xhv_mcap) # abs for sanity
+    # is_healthy   = mcap_ratio < static_parameters['state_mcap_ratio']
+    spread_ratio = max(1 - mcap_ratio, 0)
+
+    # # page 10 of PDF v4
+    # mcap_vbs = math.exp((mcap_ratio + math.sqrt(mcap_ratio)) * 2) - 0.5 if is_healthy else \
+    #            math.sqrt(mcap_ratio) * static_parameters['mcap_ratio_mult']
+
+    # spread_vbs = math.exp(1 + math.sqrt(spread_ratio)) + mcap_vbs + 1.5
+
+    # # TODOing: mcap_ratio_increase
+    # # LOGIC SPLITS HERE
+    # slippage_mult = static_parameters['slippage_mult_good'] if is_healthy else \
+    #                 static_parameters['slippage_mult_bad']
+
+
+    return {
+        'Shore Type': 'Onshore Specific',
+        'XHV (vault)': xhv_vault,
+        'XHV to offshore': xhv_to_offshore,
+        'xUSD (vault)': xusd_vault,
+        'xUSD to onshore': xusd_to_onshore,
+        'XHV Supply': xhv_supply,
+        'XHV Price': xhv_price,
+        'XHV Mcap': xhv_mcap,
+        'xAssets Mcap': xassets_mcap,
+        'Mcap Ratio': mcap_ratio,
+        'Spread Ratio': spread_ratio,
+        'Mcap VBS': 'TODO',
+        'Spread VBS': 'TODO',
+        'Slippage VBS': 'TODO',
+        'Total VBS': 'TODO',
+        'Max Offshore XHV': 'TODO',
+        'Max Onshore xUSD': 'TODO',
+        'Collateral Needed (XHV)': 'TODO',
+        'Error Message': 'TODO',
+    }
 
 def max_onshore():
     pass
@@ -288,10 +363,18 @@ if __name__ == "__main__":
             static_parameters=static_parameters,
         )
 
-    def test_df(df):
+    def test_df(df, test_func=test_row):
         # return df.apply(lambda x: [*test_row(x)], axis=1)
         # return df.transform(test_row, axis=1)
-        return [test_row(row) for index, row in df.iterrows()]
+        return [test_func(row) for index, row in df.iterrows()]
+
+    def compare_df(ref, test, name):
+        # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.compare.html
+        print(ref.compare(
+            other=test,
+            result_names=(name, 'results_df'),
+            )
+        )
 
     def run_test(test_file, verbose=False, show_all=False):
         df = pd.read_csv(test_file, sep='\t')
@@ -301,6 +384,9 @@ if __name__ == "__main__":
         results_df = pd.DataFrame(test_df(df))
         results_df['XHV Mcap'] = results_df['XHV Mcap'].astype(int)
         # print(results_df.head())
+
+        compare_df(df, results_df[df.columns], test_file)
+        return
 
         # print(df.equals(results_df))
         same_df = df == results_df[df.columns]
@@ -328,4 +414,26 @@ if __name__ == "__main__":
             print(test_file)
             run_test(test_file) # TODO add verbose and stuff
 
-    run_tests(['tests/Simulation_1.csv', 'tests/Simulation_2.csv', 'tests/Simulation_3.csv'], False)
+
+    def test_spec_onshore(test_file): # TODOing: this boi <---------------------------------------
+        df = pd.read_csv(test_file, sep='\t')
+
+        def test_spec_row(row):
+            return specific_onshore(
+                xhv_vault=row['XHV (vault)'],
+                xhv_to_offshore=row['XHV to offshore'],
+                xusd_vault=row['xUSD (vault)'],
+                xusd_to_onshore=row['xUSD to onshore'],
+                xhv_price=row['XHV Price'],
+                xhv_supply=row['XHV Supply'],
+                xassets_mcap=row['xAssets Mcap'],
+
+                static_parameters=static_parameters,
+            )
+
+        results_df = pd.DataFrame(test_df(df, test_spec_row))
+        compare_df(df, results_df, 'truth')
+
+    # run_tests(['tests/Simulation_1.csv', 'tests/Simulation_2.csv', 'tests/Simulation_3.csv'], False)
+    # run_test('tests/Simulation_1.csv')
+    test_spec_onshore('tests/Specific_Onshores.csv')
