@@ -200,7 +200,31 @@ def specific_offshore(
     is_healthy,
 ):
     '''The “specific” functions are intended for when someone enters an amount in the vault,
-    and it will calculate the required collateral.'''
+    and it will calculate the required collateral.
+    
+    test_df:
+        Shore Type                  object
+        XHV (vault)                float64
+        XHV to offshore            float64
+        xUSD (vault)               float64
+        xUSD to onshore            float64
+        XHV Supply                 float64
+        XHV Price                  float64
+        XHV Mcap                   float64
+        xAssets Mcap               float64
+        Mcap Ratio                 float64
+        Spread Ratio               float64
+        Mcap VBS                   float64
+        Spread VBS                 float64
+        Slippage VBS               float64
+        Total VBS                  float64
+        Max Offshore XHV           float64
+        Max Onshore xUSD           float64
+        Collateral Needed (XHV)    float64
+        Error Message               object
+        dtype: object
+
+    '''
     assert(xhv_qty >= st.session_state['static_parameters']['min_shore_amount'])
     # assert(enuff unlocked)
     # ensure offshore amount is not greater than block cap
@@ -284,19 +308,44 @@ def specific_onshore( # TODOing: this boi <-------------------------------------
     static_parameters,#=st.session_state['static_parameters'],
 ):
     '''The “specific” functions are intended for when someone enters an amount in the vault,
-    and it will calculate the required collateral.'''
+    and it will calculate the required collateral.
+    
+    test_df:
+        Shore Type                  object
+        XHV (vault)                float64
+        XHV to offshore            float64
+        xUSD (vault)               float64
+        xUSD to onshore            float64
+        XHV Supply                 float64
+        XHV Price                  float64
+        XHV Mcap                   float64
+        xAssets Mcap               float64
+        Mcap Ratio                 float64
+        Spread Ratio               float64
+        Mcap VBS                   float64
+        Spread VBS                 float64
+        Slippage VBS               float64
+        Total VBS                  float64
+        Max Offshore XHV           float64
+        Max Onshore xUSD           float64
+        Collateral Needed (XHV)    float64
+        Error Message               object
+        dtype: object
+
+    '''
 
     # # Universal Calculations
     xhv_mcap = xhv_price * xhv_supply
     assert(xhv_mcap > 0)
     # block_cap    = math.sqrt(xhv_mcap * static_parameters['block_cap_mult']) # TODO: confirm this is the same for all shoring
     mcap_ratio   = abs(xassets_mcap / xhv_mcap) # abs for sanity
-    # is_healthy   = mcap_ratio < static_parameters['state_mcap_ratio']
+    is_healthy   = mcap_ratio < static_parameters['state_mcap_ratio'] # TODO: problem here?
     spread_ratio = max(1 - mcap_ratio, 0)
 
     # # page 10 of PDF v4
-    # mcap_vbs = math.exp((mcap_ratio + math.sqrt(mcap_ratio)) * 2) - 0.5 if is_healthy else \
-    #            math.sqrt(mcap_ratio) * static_parameters['mcap_ratio_mult']
+    # TODO: problem here?
+    mcap_vbs = math.exp((mcap_ratio + math.sqrt(mcap_ratio)) * 2) - 0.5 if is_healthy else \
+               math.sqrt(mcap_ratio) * static_parameters['mcap_ratio_mult']
 
     # spread_vbs = math.exp(1 + math.sqrt(spread_ratio)) + mcap_vbs + 1.5
 
@@ -318,7 +367,7 @@ def specific_onshore( # TODOing: this boi <-------------------------------------
         'xAssets Mcap': xassets_mcap,
         'Mcap Ratio': mcap_ratio,
         'Spread Ratio': spread_ratio,
-        'Mcap VBS': 'TODO',
+        'Mcap VBS': mcap_vbs, # TODO: problem here?
         'Spread VBS': 'TODO',
         'Slippage VBS': 'TODO',
         'Total VBS': 'TODO',
@@ -432,6 +481,8 @@ if __name__ == "__main__":
             )
 
         results_df = pd.DataFrame(test_df(df, test_spec_row))
+        # results_df # TODO: rounding
+
         compare_df(df, results_df, 'truth')
 
     # run_tests(['tests/Simulation_1.csv', 'tests/Simulation_2.csv', 'tests/Simulation_3.csv'], False)
