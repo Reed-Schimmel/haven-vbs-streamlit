@@ -355,21 +355,29 @@ def specific_onshore(
     if amount_to_onshore_xhv > block_cap:
         err_msg += "onshore amount greater than block limit\n"
 
-    # mcap_ratio   = xassets_mcap / xhv_mcap # cannot be < 0
-    mcap_ratio   = max(xassets_mcap / xhv_mcap, 0) # cannot be < 0
+    mcap_ratio   = (xassets_mcap / xhv_mcap) # cannot be < 0
+    # mcap_ratio   = max(xassets_mcap / xhv_mcap, 0) # cannot be < 0
     spread_ratio = max(1 - mcap_ratio, 0)
     # spread_ratio = 1 - mcap_ratio if mcap_ratio < 1 else 0
-    is_healthy   = mcap_ratio < static_parameters['state_mcap_ratio'] # TODO: problem here?
+    mcap_ratio = max(mcap_ratio, 0)
+    
+    # if mcap_ratio < 1:
+    #     spread_ratio = 1 - mcap_ratio
+    #     if mcap_ratio < 0:
+    #         mcap_ratio = 0
+    # else:
+    #     spread_ratio = 0
+    is_healthy   = mcap_ratio <= static_parameters['state_mcap_ratio'] # TODO: problem here?
 
     # # page 10 of PDF v4
     # TODO: problem here?
     # called "currentVBS" in pseudocode
-    mcap_vbs = math.exp((mcap_ratio + math.sqrt(mcap_ratio)) * 2) - 0.5 if is_healthy else \
+    mcap_vbs = math.exp( (mcap_ratio + math.sqrt(mcap_ratio)) * 2) - 0.5 if is_healthy else \
                math.sqrt(mcap_ratio) * static_parameters['mcap_ratio_mult']
 
     spread_vbs = math.exp(1 + math.sqrt(spread_ratio)) + mcap_vbs + 1.5
-    if spread_vbs > mcap_vbs:
-        mcap_vbs = spread_vbs
+    # if spread_vbs > mcap_vbs:
+    #     mcap_vbs = spread_vbs
 
     # calculate spread ratio increase
     new_spread_ratio = 1 - ( (xassets_mcap - xusd_to_onshore) / ((xhv_supply + amount_to_onshore_xhv) * xhv_price) )
@@ -410,7 +418,7 @@ def specific_onshore(
         'XHV Price': xhv_price,
         'XHV Mcap': xhv_mcap,
         'xAssets Mcap': xassets_mcap,
-        'Mcap Ratio': mcap_ratio,
+        'Mcap Ratio': mcap_ratio, # line 10 of the csv is wack yo TODO: fix??
         'Spread Ratio': spread_ratio,
         'Mcap VBS': mcap_vbs, # TODO: problem here?
         'Spread VBS': spread_vbs,
@@ -532,7 +540,7 @@ if __name__ == "__main__":
         return df
 
     def test_spec_onshore(test_file):
-        df = pd.read_csv(test_file, sep='\t').iloc[:10]
+        df = pd.read_csv(test_file, sep='\t').iloc[:12]#.reset_index()
 
         def test_spec_row(row):
             return specific_onshore(
@@ -558,7 +566,7 @@ if __name__ == "__main__":
             check_dtype=False,
             check_exact=False,
             # rtol=1e-1,
-            atol=0.1,#1e-1,
+            atol=0.01,#1e-3,
             # check_less_precise=True,
         )
         
