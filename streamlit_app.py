@@ -100,7 +100,7 @@ if st.session_state['simulation_list'] != []:
 # ### ----------------- TESTS ------------------------
 # st.markdown('---')
 # def test_row(row):
-#     return shore( # TODO: <--------------------------------- test row
+#     return shore(
 #         shore_type=row['Shore Type'],
 #         xhv_price=row['XHV Price ($)'],#.astype(float),
 #         xhv_qty=row['XHV (vault)'],#.astype(float),

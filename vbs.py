@@ -79,7 +79,7 @@ def shore(
 
     spread_vbs = math.exp(1 + math.sqrt(spread_ratio)) + mcap_vbs + 1.5
 
-    # TODOing: mcap_ratio_increase
+    # TODO: mcap_ratio_increase
     # LOGIC SPLITS HERE
     slippage_mult = static_parameters['slippage_mult_good'] if is_healthy else \
                     static_parameters['slippage_mult_bad']
@@ -193,7 +193,7 @@ def shore(
 
 #  function working out the amount of collateral required for offshores
 # def specific_offshore(xhv_qty, xhv_mcap, block_cap, slippage_mult):
-def specific_offshore( # TODOing: this boi! <----------------------------------------------
+def specific_offshore(
     xhv_price,
     xhv_qty,
     xusd_qty,
@@ -356,7 +356,7 @@ def specific_onshore(
         'xAssets Mcap': xassets_mcap,
         'Mcap Ratio': 0, # line 10 of the csv is wack yo TODO: fix??
         'Spread Ratio': 0,
-        'Mcap VBS': 0, # TODO: I need to escape when error message is triggered, skipping for now
+        'Mcap VBS': 0, 
         'Spread VBS': 0,
         'Slippage VBS': 0,
         'Total VBS': 0,
@@ -419,7 +419,7 @@ def specific_onshore(
     #                 static_parameters['slippage_mult_bad']
     # slippage_vbs = math.sqrt(increase_spread_ratio) * slippage_mult
     
-    # TODO: why aren't we asking about the health???
+    # TODO: why aren't we asking about the health??? ASK xKleinroy
     slippage_vbs = math.sqrt(increase_spread_ratio) * static_parameters['slippage_mult_good']
 
     # set min or max VBS if the calculated VBS is out of bounds
@@ -546,7 +546,7 @@ if __name__ == "__main__":
     # round_to(dfs, decimals=)
 
     def test_row(row):
-        return shore( # TODO: <--------------------------------- test row
+        return shore(
             shore_type=row['Shore Type'],
             xhv_price=row['XHV Price'],#.astype(float),
             xhv_qty=row['XHV (vault)'],#.astype(float),
