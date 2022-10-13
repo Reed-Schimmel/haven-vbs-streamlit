@@ -12,7 +12,7 @@ def shore(
     xassets_mcap,
 
     static_parameters,#=st.session_state['static_parameters'],
-):
+    ):
     '''
     (On/Off)Shore Simulation.
 
@@ -188,8 +188,12 @@ def shore(
     #     }
     return sim
 
+
+
+
+#  function working out the amount of collateral required for offshores
 # def specific_offshore(xhv_qty, xhv_mcap, block_cap, slippage_mult):
-def specific_offshore(
+def specific_offshore( # TODOing: this boi! <----------------------------------------------
     xhv_price,
     xhv_qty,
     xusd_qty,
@@ -200,7 +204,7 @@ def specific_offshore(
     # block_cap,
     slippage_mult,
     is_healthy,
-):
+    ):
     '''The “specific” functions are intended for when someone enters an amount in the vault,
     and it will calculate the required collateral.
     
