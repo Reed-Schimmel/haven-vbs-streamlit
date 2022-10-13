@@ -297,7 +297,7 @@ def max_offshore(
     pass
 
 
-
+#  function working out the amount of collateral required for onshores
 def specific_onshore( # TODOing: this boi <---------------------------------------
     xhv_vault,
     xhv_to_offshore,
@@ -335,27 +335,65 @@ def specific_onshore( # TODOing: this boi <-------------------------------------
         dtype: object
 
     '''
+    err_msg = ""
+    amount_to_onshore_xhv = xusd_to_onshore / xhv_price
+    if amount_to_onshore_xhv > xusd_vault:
+        err_msg += "not enough xUSD available to onshore error message\n"
+    if amount_to_onshore_xhv < static_parameters['min_shore_amount']:
+        err_msg += "incorrect onshore amount error message\n"
+    if xhv_vault < static_parameters['min_shore_amount']:
+        err_msg += "not enough unlocked XHV error message\n"
 
-    # # Universal Calculations
     xhv_mcap = xhv_price * xhv_supply
-    assert(xhv_mcap > 0)
-    # block_cap    = math.sqrt(xhv_mcap * static_parameters['block_cap_mult']) # TODO: confirm this is the same for all shoring
-    mcap_ratio   = abs(xassets_mcap / xhv_mcap) # abs for sanity
-    is_healthy   = mcap_ratio < static_parameters['state_mcap_ratio'] # TODO: problem here?
+    # assert(xhv_mcap > 0) # TODO: enable? prolly no cuz it crashes exec
+    block_cap = math.sqrt(xhv_mcap * static_parameters['block_cap_mult']) # TODO: confirm this is the same for all shoring
+    # validation – ensure onshore amount is not greater than block cap
+    if amount_to_onshore_xhv > block_cap:
+        err_msg += "onshore amount greater than block limit\n"
+
+    mcap_ratio   = max(xassets_mcap / xhv_mcap, 0) # cannot be < 0
     spread_ratio = max(1 - mcap_ratio, 0)
+    # spread_ratio = 1 - mcap_ratio if mcap_ratio < 1 else 0
+    is_healthy   = mcap_ratio < static_parameters['state_mcap_ratio'] # TODO: problem here?
 
     # # page 10 of PDF v4
     # TODO: problem here?
+    # called "currentVBS" in pseudocode
     mcap_vbs = math.exp((mcap_ratio + math.sqrt(mcap_ratio)) * 2) - 0.5 if is_healthy else \
                math.sqrt(mcap_ratio) * static_parameters['mcap_ratio_mult']
 
-    # spread_vbs = math.exp(1 + math.sqrt(spread_ratio)) + mcap_vbs + 1.5
+    spread_vbs = math.exp(1 + math.sqrt(spread_ratio)) + mcap_vbs + 1.5
+    if spread_vbs > mcap_vbs:
+        mcap_vbs = spread_vbs
 
-    # # TODOing: mcap_ratio_increase
-    # # LOGIC SPLITS HERE
+    # calculate spread ratio increase
+    new_spread_ratio = 1 - ( (xassets_mcap - xusd_to_onshore) / ((xhv_supply + amount_to_onshore_xhv) * xhv_price) )
+    if spread_ratio == 0:
+        #  prevent div by 0
+        increase_spread_ratio = new_spread_ratio - 1
+    else:
+        increase_spread_ratio = (new_spread_ratio / spread_ratio) - 1
+    # TODO: THE COMMENT DOESN'T LINE UP WITH THIS LOGIC. WARNING!!!!
+    # if the increase is negative, change it to positive due to square root performed on it
+    increase_spread_ratio = max(increase_spread_ratio, 0)
+    # increase_spread_ratio = abs(increase_spread_ratio)
+
+
+
     # slippage_mult = static_parameters['slippage_mult_good'] if is_healthy else \
     #                 static_parameters['slippage_mult_bad']
+    # slippage_vbs = math.sqrt(increase_spread_ratio) * slippage_mult
+    
+    # TODO: why aren't we asking about the health???
+    slippage_vbs = math.sqrt(increase_spread_ratio) * static_parameters['slippage_mult_good']
 
+    # set min or max VBS if the calculated VBS is out of bounds
+    total_vbs = max(mcap_vbs + slippage_vbs, static_parameters['min_vbs'])
+
+    # total amount of unlocked XHV needed for the onshore specified (includes onshore amount)
+    total_collateral = amount_to_onshore_xhv * total_vbs
+    if total_collateral > (xhv_vault * total_vbs):
+        err_msg += 'not enough collateral available'
 
     return {
         'Shore Type': 'Onshore Specific',
@@ -370,13 +408,13 @@ def specific_onshore( # TODOing: this boi <-------------------------------------
         'Mcap Ratio': mcap_ratio,
         'Spread Ratio': spread_ratio,
         'Mcap VBS': mcap_vbs, # TODO: problem here?
-        'Spread VBS': -1,
-        'Slippage VBS': -1,
-        'Total VBS': -1,
+        'Spread VBS': spread_vbs,
+        'Slippage VBS': slippage_vbs,
+        'Total VBS': total_vbs,
         'Max Offshore XHV': -1,
         'Max Onshore xUSD': -1,
-        'Collateral Needed (XHV)': -1,
-        'Error Message': 'TODO',
+        'Collateral Needed (XHV)': total_collateral,
+        'Error Message': err_msg,
     }
 
 def max_onshore():
@@ -395,7 +433,7 @@ if __name__ == "__main__":
 
     static_parameters = dict(
         min_vbs = 1,
-        min_shore_amount = 1,
+        min_shore_amount = 1, # min onshore amount
         block_cap_mult   = 2500,
         mcap_ratio_mult  = 40,
         
@@ -488,17 +526,8 @@ if __name__ == "__main__":
 
         return df
 
-    def test_spec_onshore(test_file): # TODOing: this boi <---------------------------------------
-        # cols = ['Spread Ratio', 'Mcap Ratio']
-        
+    def test_spec_onshore(test_file):
         df = pd.read_csv(test_file, sep='\t')
-        # df['XHV Mcap'] = df['XHV Mcap'].astype(int)
-        # df = fix_prec(df, cols)
-
-        
-
-        # df['Spread Ratio'] = np.round(df['Spread Ratio'], decimals=4)
-
 
         def test_spec_row(row):
             return specific_onshore(
@@ -514,29 +543,46 @@ if __name__ == "__main__":
             )
         results_df = pd.DataFrame(test_df(df, test_spec_row))
         results_df = results_df.astype(df.dtypes.to_dict())
-        # results_df['XHV Mcap'] = results_df['XHV Mcap'].astype(int)
 
-
-        # df = fix_prec(df, cols)
-        # results_df = fix_prec(results_df, cols)
-
-        # results_df['Spread Ratio'] = (results_df['Spread Ratio'] * 10000).astype(int).astype(float) / 10000
-        # results_df['Spread Ratio'] = np.round(results_df['Spread Ratio'], decimals=4) 
-        # results_df['Spread Ratio'] = np.floor(results_df['Spread Ratio'])
-
-        compare_df(df, results_df, 'truth')
+        # compare_df(df, results_df, 'truth')
         # same_df = df == results_df[df.columns]
         # ---------------------------------------------------------
         float_cols = df.columns[df.dtypes == float]#.to_list()
         # diff_df = (df[float_cols] - results_df[float_cols]).abs()
-        diff_df = np.round((df[float_cols] - results_df[float_cols]).abs(), decimals=3)
+        diff_df = np.round((df[float_cols] - results_df[float_cols]).abs(), decimals=2) # TODO: maybe should be 3?
 
-        print(diff_df)#['Spread Ratio'])
+        # print(diff_df)#['Spread Ratio'])
+        # print("Column: Passed")
+        passed = (diff_df == 0.0).all()
+        # print(passed)
+        # passed_cols = passed[passed].to_dict().keys()
+        # print(passed)
 
-        print((diff_df == 0.0).all())
+
+        # print("Failed")
+        failed = passed[passed == False] | True #(diff_df != 0.0).any()
+        # print(failed)
+        failed_cols = failed[failed].to_dict().keys()
+        # print(failed_cols)
+        # print(diff_df[failed_cols].sum())
+        # print(df[failed_cols].sum())
+        print(df[failed_cols].sum().compare(diff_df[failed_cols].sum(), result_names=('df.sum()', 'diff_df.sum()')))
+
+        # print(passed_cols[passed_cols])
+        # print(passed_cols[passed_cols].to_dict().keys())
+        # print(df[passed_cols[passed_cols].to_dict().keys()])
+
+
+        # failed_cols = passed_cols[passed_cols == False] | True#(diff_df != 0.0).any()
+        # print(df[failed_cols[failed_cols == True]])
+        # print(failed_cols[failed_cols == True])
+        # # print(df.columns)
+        # print(passed_cols[passed_cols == False] | True)
+        # # print(df[(passed_cols[passed_cols == False] | True)])
+        # compare_df(df[failed_cols], results_df[failed_cols], 'truth')
+        
 
         # print((float_cols))
-        print("Column: Passed")
 
         # print(df[float_cols] - results_df[float_cols])
 
@@ -551,4 +597,5 @@ if __name__ == "__main__":
 
     # run_tests(['tests/Simulation_1.csv', 'tests/Simulation_2.csv', 'tests/Simulation_3.csv'], False)
     # run_test('tests/Simulation_1.csv')
+    print('test_spec_onshore')
     test_spec_onshore('tests/Specific_Onshores.csv')
