@@ -1,4 +1,6 @@
 import math
+import numpy as np
+import pandas as pd
 import streamlit as st
 
 def shore(
@@ -368,20 +370,28 @@ def specific_onshore( # TODOing: this boi <-------------------------------------
         'Mcap Ratio': mcap_ratio,
         'Spread Ratio': spread_ratio,
         'Mcap VBS': mcap_vbs, # TODO: problem here?
-        'Spread VBS': 'TODO',
-        'Slippage VBS': 'TODO',
-        'Total VBS': 'TODO',
-        'Max Offshore XHV': 'TODO',
-        'Max Onshore xUSD': 'TODO',
-        'Collateral Needed (XHV)': 'TODO',
+        'Spread VBS': -1,
+        'Slippage VBS': -1,
+        'Total VBS': -1,
+        'Max Offshore XHV': -1,
+        'Max Onshore xUSD': -1,
+        'Collateral Needed (XHV)': -1,
         'Error Message': 'TODO',
     }
 
 def max_onshore():
     pass
 
+
+
+
+
+
+
+### -------- TESTS -----------
 if __name__ == "__main__":
-    import pandas as pd
+    # import pandas as pd
+    # pd.set_option('precision', 4)
 
     static_parameters = dict(
         min_vbs = 1,
@@ -399,6 +409,8 @@ if __name__ == "__main__":
         conversion_fee_offshore = 1.5,
         conversion_fee_onshore  = 1.5,
     )
+
+    # round_to(dfs, decimals=)
 
     def test_row(row):
         return shore( # TODO: <--------------------------------- test row
@@ -419,6 +431,11 @@ if __name__ == "__main__":
 
     def compare_df(ref, test, name):
         # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.compare.html
+
+        # float_cols = ref.columns[ref.dtypes == float].to_list()
+        # for col in float_cols:
+        #     test[col] = test[col] - ref[col]
+
         print(ref.compare(
             other=test,
             result_names=(name, 'results_df'),
@@ -464,8 +481,24 @@ if __name__ == "__main__":
             run_test(test_file) # TODO add verbose and stuff
 
 
+    def fix_prec(df, cols, decimals=3):
+        mult = (10 ** decimals)
+        for col in cols:
+            df[col] = (df[col] * mult).astype(int).astype(float) / mult
+
+        return df
+
     def test_spec_onshore(test_file): # TODOing: this boi <---------------------------------------
+        # cols = ['Spread Ratio', 'Mcap Ratio']
+        
         df = pd.read_csv(test_file, sep='\t')
+        # df['XHV Mcap'] = df['XHV Mcap'].astype(int)
+        # df = fix_prec(df, cols)
+
+        
+
+        # df['Spread Ratio'] = np.round(df['Spread Ratio'], decimals=4)
+
 
         def test_spec_row(row):
             return specific_onshore(
@@ -479,11 +512,35 @@ if __name__ == "__main__":
 
                 static_parameters=static_parameters,
             )
-
         results_df = pd.DataFrame(test_df(df, test_spec_row))
-        # results_df # TODO: rounding
+        results_df = results_df.astype(df.dtypes.to_dict())
+        # results_df['XHV Mcap'] = results_df['XHV Mcap'].astype(int)
+
+
+        # df = fix_prec(df, cols)
+        # results_df = fix_prec(results_df, cols)
+
+        # results_df['Spread Ratio'] = (results_df['Spread Ratio'] * 10000).astype(int).astype(float) / 10000
+        # results_df['Spread Ratio'] = np.round(results_df['Spread Ratio'], decimals=4) 
+        # results_df['Spread Ratio'] = np.floor(results_df['Spread Ratio'])
 
         compare_df(df, results_df, 'truth')
+        same_df = df == results_df[df.columns]
+        # ---------------------------------------------------------
+        float_cols = df.columns[df.dtypes == float]#.to_list()
+        print((float_cols))
+        print("Column: Passed")
+
+        print(df[float_cols] - results_df[float_cols])
+
+        for col in float_cols:
+            print(col, all(np.allclose(df[col], results_df[col], rtol=0.01)))
+        # ---------------------------------------------------------
+
+        # https://docs.scipy.org/doc/numpy-1.10.1/reference/generated/numpy.isclose.html
+
+        print("Column: Passed")
+        print(same_df.all())
 
     # run_tests(['tests/Simulation_1.csv', 'tests/Simulation_2.csv', 'tests/Simulation_3.csv'], False)
     # run_test('tests/Simulation_1.csv')
