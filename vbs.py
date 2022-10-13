@@ -337,11 +337,12 @@ def specific_onshore(
         Max Offshore XHV           float64
         Max Onshore xUSD           float64
         Collateral Needed (XHV)    float64
-        Error Message               object
+        Error Message               object: [np.nan | 'incorrect onshore amount' | 'not enough xUSD available to onshore' | 'not enough collateral available']
         dtype: object
 
     '''
     xhv_mcap = xhv_price * xhv_supply
+    amount_to_onshore_xhv = xusd_to_onshore / xhv_price
 
     results = {
         'Shore Type': 'Onshore Specific',
@@ -365,10 +366,7 @@ def specific_onshore(
         'Error Message': np.nan,
     }
 
-    # errs = [nan, 'incorrect onshore amount',
-    #    'not enough xUSD available to onshore',
-    #    'not enough collateral available']
-    amount_to_onshore_xhv = xusd_to_onshore / xhv_price
+
     if amount_to_onshore_xhv > xusd_vault:
         results['Error Message'] = 'not enough xUSD available to onshore'
         return results
@@ -379,27 +377,18 @@ def specific_onshore(
         results['Error Message'] = 'not enough collateral available'
         return results
 
-    # xhv_mcap = xhv_price * xhv_supply
     # assert(xhv_mcap > 0) # TODO: enable? prolly no cuz it crashes exec
-    block_cap = math.sqrt(xhv_mcap * static_parameters['block_cap_mult']) # TODO: confirm this is the same for all shoring
+
     # validation – ensure onshore amount is not greater than block cap
+    block_cap = math.sqrt(xhv_mcap * static_parameters['block_cap_mult']) # TODO: confirm this is the same for all shoring
     if amount_to_onshore_xhv > block_cap:
-        # err_msg += "onshore amount greater than block limit\n" # -4, no message
+        # Error code -4, no message
         return results
 
 
     mcap_ratio   = (xassets_mcap / xhv_mcap) # cannot be < 0
-    # mcap_ratio   = max(xassets_mcap / xhv_mcap, 0) # cannot be < 0
     spread_ratio = max(1 - mcap_ratio, 0)
-    # spread_ratio = 1 - mcap_ratio if mcap_ratio < 1 else 0
     mcap_ratio = max(mcap_ratio, 0)
-    
-    # if mcap_ratio < 1:
-    #     spread_ratio = 1 - mcap_ratio
-    #     if mcap_ratio < 0:
-    #         mcap_ratio = 0
-    # else:
-    #     spread_ratio = 0
     is_healthy   = mcap_ratio <= static_parameters['state_mcap_ratio'] # TODO: problem here?
 
     # # page 10 of PDF v4
@@ -466,12 +455,69 @@ def specific_onshore(
     })
     return results
 
-def max_onshore():
-    pass
+# function working out the maximum amount of xUSD that can be onshored
+def max_onshore( # TODOing <-------------------------------------------------
+    xhv_vault,
+    # xhv_to_offshore,
+    xusd_vault,
+    # xusd_to_onshore,
+    xhv_price,
+    xhv_supply,
+    xassets_mcap,
 
+    static_parameters,
+    ):
+    '''function working out the maximum amount of xUSD that can be onshored.
 
+    This function is harder to calculate for three reasons:
+        1. Introduction of Spread Ratio.
+        2. Working with two currencies, XHV and xUSD.
+        3. When trying to work out the maximum amount of xUSD that we can onshore, we have to consider both,
+        the amounts of unlocked xUSD and XHV in the vault and the corresponding VBS.
+    
+    test_df: TODO: fix this below to match da right stuff
+        Shore Type                  object: "Onshore" | "Offshore"
+        XHV (vault)                float64
+        xUSD (vault)               float64
+        XHV Supply                 float64
+        XHV Price                  float64
+        XHV Mcap                   float64
+        xAssets Mcap               float64
+        Mcap Ratio                 float64
+        Spread Ratio               float64
+        Mcap VBS                   float64
+        Spread VBS                 float64
+        Slippage VBS               float64
+        Total VBS                  float64
+        Max Offshore XHV           float64
+        Max Onshore xUSD           float64
+        Collateral Needed (XHV)    float64
+        dtype: object
 
+    '''
+    xhv_mcap = xhv_price * xhv_supply
 
+    results = { # FOR SPEC
+        'Shore Type': 'Onshore',
+        'XHV (vault)': xhv_vault,
+        # 'XHV to offshore': xhv_to_offshore,
+        'xUSD (vault)': xusd_vault,
+        # 'xUSD to onshore': xusd_to_onshore,
+        'XHV Supply': xhv_supply,
+        'XHV Price': xhv_price,
+        'XHV Mcap': xhv_mcap,
+        'xAssets Mcap': xassets_mcap,
+        'Mcap Ratio': 0,
+        'Spread Ratio': 0,
+        'Mcap VBS': 0,
+        'Spread VBS': 0,
+        'Slippage VBS': 0,
+        'Total VBS': 0,
+        'Max Offshore XHV': 0,
+        'Max Onshore xUSD': 0,
+        'Collateral Needed (XHV)': 0,
+        # 'Error Message': np.nan,
+    }
 
 
 
@@ -615,7 +661,6 @@ if __name__ == "__main__":
             check_exact=False,
             # rtol=1e-1,
             atol=0.1,#1e-3,
-            # check_less_precise=True,
         )
         
 
