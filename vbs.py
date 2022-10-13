@@ -525,22 +525,29 @@ if __name__ == "__main__":
         # results_df['Spread Ratio'] = np.floor(results_df['Spread Ratio'])
 
         compare_df(df, results_df, 'truth')
-        same_df = df == results_df[df.columns]
+        # same_df = df == results_df[df.columns]
         # ---------------------------------------------------------
         float_cols = df.columns[df.dtypes == float]#.to_list()
-        print((float_cols))
+        # diff_df = (df[float_cols] - results_df[float_cols]).abs()
+        diff_df = np.round((df[float_cols] - results_df[float_cols]).abs(), decimals=3)
+
+        print(diff_df)#['Spread Ratio'])
+
+        print((diff_df == 0.0).all())
+
+        # print((float_cols))
         print("Column: Passed")
 
-        print(df[float_cols] - results_df[float_cols])
+        # print(df[float_cols] - results_df[float_cols])
 
-        for col in float_cols:
-            print(col, all(np.allclose(df[col], results_df[col], rtol=0.01)))
+        # for col in float_cols:
+        #     print(col, all(np.allclose(df[col], results_df[col], rtol=0.01)))
         # ---------------------------------------------------------
 
         # https://docs.scipy.org/doc/numpy-1.10.1/reference/generated/numpy.isclose.html
 
-        print("Column: Passed")
-        print(same_df.all())
+        # print("Column: Passed")
+        # print(same_df.all())
 
     # run_tests(['tests/Simulation_1.csv', 'tests/Simulation_2.csv', 'tests/Simulation_3.csv'], False)
     # run_test('tests/Simulation_1.csv')
