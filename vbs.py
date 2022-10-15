@@ -458,9 +458,9 @@ def specific_onshore(
 
 # function working out the maximum amount of xUSD that can be onshored
 def max_onshore( # TODOing <-------------------------------------------------
-    xhv_vault,
+    xhv_vault, # Unlocked
     # xhv_to_offshore,
-    xusd_vault,
+    xusd_vault, # Unlocked
     # xusd_to_onshore,
     xhv_price,
     xhv_supply,
@@ -496,9 +496,11 @@ def max_onshore( # TODOing <-------------------------------------------------
         dtype: object
 
     '''
+    ONSHORE_ACC_THRESH = 0.0005
+
     xhv_mcap = xhv_price * xhv_supply
 
-    results = { # FOR SPEC
+    results = {
         'Shore Type': 'Onshore',
         'XHV (vault)': xhv_vault,
         # 'XHV to offshore': xhv_to_offshore,
@@ -516,10 +518,113 @@ def max_onshore( # TODOing <-------------------------------------------------
         'Total VBS': 0,
         'Max Offshore XHV': 0,
         'Max Onshore xUSD': 0,
+        'Max Onshore XHV': 0,
         'Collateral Needed (XHV)': 0,
-        # 'Error Message': np.nan,
+        'Error Message': np.nan,
     }
 
+    # return results # TODO: confirm tests workin
+
+    if (max(xusd_vault / xhv_price, xhv_vault) < static_parameters['min_shore_amount']):
+        results['Error Message'] = 'not enough unlocked funds to onshore' # -1
+        return results
+
+    # Call the specific_onshore() function get the amount
+    # of collateral needed based on the amount of unlocked xUSD available
+    # by passing “true” in the function, it will ignore some error messages in the calling
+    # function, which will need to be verified in this function
+
+    xhv_to_offshore = 0 # TODO
+    xusd_to_onshore = 0 # TODO
+    spec_results = specific_onshore(xhv_vault, xhv_to_offshore, xusd_vault, xusd_to_onshore, xhv_price, xhv_supply, xassets_mcap, static_parameters, ignore_errors=True)
+    total_collateral = spec_results['Collateral Needed (XHV)']
+
+    if total_collateral < static_parameters['min_shore_amount']:
+        results['Error Message'] = 'incorrect onshore amount' # -2
+        return results
+
+    if total_collateral <= xhv_vault:
+        # we have enough collateral to onshore all the unlocked xUSD
+        # TODO: REALLY confirm this
+        results['Collateral Needed (XHV)'] = xusd_vault # TODO: pg 7, confirm that unlockedXUSD should be returned as "Collateral Needed"
+
+    # From this point on, we have to work out the amount of xUSD that can be onshored based
+    # on the amount of available unlocked XHV.
+    # calculate the VBS in order to get the onshore amount from the unlocked XHV
+    # get all other parameters required for calculating the VBS
+    # TODO: this makes me think the prev todos something idk
+    mcap_ratio   = (xassets_mcap / xhv_mcap) # cannot be < 0
+    spread_ratio = max(1 - mcap_ratio, 0)
+    mcap_ratio = max(mcap_ratio, 0)
+    is_healthy   = mcap_ratio <= static_parameters['state_mcap_ratio'] # TODO: problem here?
+
+    # # page 10 of PDF v4
+    # TODO: problem here?
+    # called "currentVBS" in pseudocode
+    mcap_vbs = (math.exp( (mcap_ratio + math.sqrt(mcap_ratio)) * 2) - 0.5) if is_healthy else \
+               (math.sqrt(mcap_ratio) * static_parameters['mcap_ratio_mult'])
+
+    spread_vbs = math.exp(1 + math.sqrt(spread_ratio)) + mcap_vbs + 1.5
+    if spread_vbs > mcap_vbs:
+        mcap_vbs = spread_vbs
+
+    # calculate the onshore amount using the Max Onshore Collateral defined earlier in the paper
+    temp_xhv_to_onshore = xhv_vault / mcap_vbs
+    temp_xusd_to_onshore = temp_xhv_to_onshore * xhv_price
+
+    onshore_acc = 1
+    onshore_pct = 0 # % value of calculated collateral vs available XHV
+    temp_collateral = 0
+    collateral_diff = 0 # a % difference between first and calculated collateral
+    additional_onshore = 0 # amount to be added to existing shore
+    less_onshore = 0 # amount to be subtracted from the existing onshore 
+
+    # create a while loop to run until a condition of 0.0005 (0.05%) accuracy has been met
+    while(onshore_acc > ONSHORE_ACC_THRESH):
+        # call the specificOnshore() function in order to return the actual collateral
+        # needed, from which we can work out the accuracy. We then add or subtract a %
+        # to the current onshore amount until the desired accuracy is met.
+        temp_collateral = specific_onshore(xhv_vault, xhv_to_offshore, xusd_vault, xusd_to_onshore, xhv_price, xhv_supply, xassets_mcap, static_parameters, ignore_errors=True)['Collateral Needed (XHV)']
+        if temp_collateral > xhv_vault:
+            # collateral higher than amount of unlocked XHV, so we use the % difference
+            # to subtract from the onshore amount
+            onshore_pct = 1 - (xhv_vault / temp_collateral)
+            less_onshore = temp_xusd_to_onshore * onshore_pct
+            temp_xusd_to_onshore -= less_onshore
+        else:
+            onshore_acc = 1 - (temp_collateral / xhv_vault)
+            if onshore_acc <= ONSHORE_ACC_THRESH:
+                break # exit since onshore amount is within accepted acc
+            
+            # calc additional onshore amount
+            additional_onshore = temp_xusd_to_onshore * onshore_acc
+            # add additional onshore amount to existing amount
+            temp_xusd_to_onshore += additional_onshore
+        
+    # this is the final max onshore amount (declared a new variable for clarity only)
+    final_xusd_to_onshore = temp_xusd_to_onshore
+    if (final_xusd_to_onshore / xhv_price) < static_parameters['min_shore_amount']:
+        results['Error Message'] = 'incorrect onshore amount' # -2
+        return results
+    if (final_xusd_to_onshore / xhv_price) < static_parameters['min_shore_amount']:
+        results['Error Message'] = 'onshore amount greater than block limit' # -3
+        return results
+
+    results.update({
+        'Max Onshore xUSD': final_xusd_to_onshore,
+
+        'Mcap Ratio': mcap_ratio, # line 10 of the csv is wack yo TODO: fix??
+        'Spread Ratio': spread_ratio,
+        'Mcap VBS': mcap_vbs, # TODO: problem here?
+        'Spread VBS': spread_vbs,
+        'Slippage VBS': slippage_vbs,
+        'Total VBS': total_vbs,
+        # 'Max Offshore XHV': -1,
+        # 'Max Onshore xUSD': -1,
+        'Collateral Needed (XHV)': total_collateral,
+    })
+    
+    return results
 
 
 ### -------- TESTS -----------
@@ -643,14 +748,14 @@ if __name__ == "__main__":
         # compare_df(df, results_df, 'truth')
 
         drop_test_cols = [
-            'Max Offshore XHV','Max Onshore xUSD',
-            'Error Message', # missing ~5%
-            'Mcap Ratio',
-            'Spread Ratio',
-            'Mcap VBS',
-            'Spread VBS',
-            'Slippage VBS',
-            'Total VBS', # missing ~5%
+            # 'Max Offshore XHV','Max Onshore xUSD',
+            # 'Error Message', # missing ~5%
+            # 'Mcap Ratio',
+            # 'Spread Ratio',
+            # 'Mcap VBS',
+            # 'Spread VBS',
+            # 'Slippage VBS',
+            # 'Total VBS', # missing ~5%
             # 'Collateral Needed (XHV)', # missing ~5%
         ]
 
@@ -719,5 +824,52 @@ if __name__ == "__main__":
 
     # run_tests(['tests/Simulation_1.csv', 'tests/Simulation_2.csv', 'tests/Simulation_3.csv'], False)
     # run_test('tests/Simulation_1.csv')
-    print('test_spec_onshore')
-    test_spec_onshore('tests/Specific_Onshores.csv')
+    # print('test_spec_onshore')
+    # test_spec_onshore('tests/Specific_Onshores.csv')
+
+
+    def test_max_onshore(test_file):
+        df = pd.read_csv(test_file, sep='\t')#.iloc[:12]#.reset_index()
+
+        def test_spec_row(row): # TODO: me to max
+            return max_onshore(
+                xhv_vault=row['XHV (vault)'],
+                # xhv_to_offshore=row['XHV to offshore'],
+                xusd_vault=row['xUSD (vault)'],
+                # xusd_to_onshore=row['xUSD to onshore'],
+                xhv_price=row['XHV Price'],
+                xhv_supply=row['XHV Supply'],
+                xassets_mcap=row['xAssets Mcap'],
+
+                static_parameters=static_parameters,
+            )
+        results_df = pd.DataFrame(test_df(df, test_spec_row))[df.columns] # TODO: maybe remove df.columns after fixes
+        results_df = results_df.astype(df.dtypes.to_dict())
+
+        # compare_df(df, results_df, 'truth')
+
+        drop_test_cols = [
+            # 'Max Offshore XHV','Max Onshore xUSD',
+            # 'Error Message', # missing ~5%
+            # 'Mcap Ratio',
+            # 'Spread Ratio',
+            # 'Mcap VBS',
+            # 'Spread VBS',
+            # 'Slippage VBS',
+            # 'Total VBS', # missing ~5%
+            # 'Collateral Needed (XHV)', # missing ~5%
+        ]
+
+        # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.testing.assert_frame_equal.html
+        return pd.testing.assert_frame_equal(
+            left=df.drop(drop_test_cols, axis=1),
+            right=results_df.drop(drop_test_cols, axis=1),
+            check_dtype=False,
+            check_exact=False,
+            # rtol=1e-1,
+            atol=0.1,#1e-3,
+        )
+
+    print('test_max_onshore')
+    test_max_onshore('tests/Simulation_1.csv')
+
