@@ -314,6 +314,7 @@ def specific_onshore(
     xassets_mcap,
 
     static_parameters,#=st.session_state['static_parameters'],
+    ignore_errors=False,
     ):
     '''The “specific” functions are intended for when someone enters an amount in the vault,
     and it will calculate the required collateral.
@@ -367,13 +368,13 @@ def specific_onshore(
     }
 
 
-    if amount_to_onshore_xhv > xusd_vault:
+    if (not ignore_errors) and amount_to_onshore_xhv > xusd_vault:
         results['Error Message'] = 'not enough xUSD available to onshore'
         return results
-    if amount_to_onshore_xhv < static_parameters['min_shore_amount']:
+    if (not ignore_errors) and amount_to_onshore_xhv < static_parameters['min_shore_amount']:
         results['Error Message'] = 'incorrect onshore amount'
         return results
-    if xhv_vault < static_parameters['min_shore_amount']:
+    if (not ignore_errors) and xhv_vault < static_parameters['min_shore_amount']:
         results['Error Message'] = 'not enough collateral available'
         return results
 
@@ -381,7 +382,7 @@ def specific_onshore(
 
     # validation – ensure onshore amount is not greater than block cap
     block_cap = math.sqrt(xhv_mcap * static_parameters['block_cap_mult']) # TODO: confirm this is the same for all shoring
-    if amount_to_onshore_xhv > block_cap:
+    if (not ignore_errors) and amount_to_onshore_xhv > block_cap:
         # Error code -4, no message
         return results
 
@@ -427,7 +428,7 @@ def specific_onshore(
 
     # total amount of unlocked XHV needed for the onshore specified (includes onshore amount)
     total_collateral = amount_to_onshore_xhv * total_vbs
-    if total_collateral > (xhv_vault * total_vbs):
+    if (not ignore_errors) and total_collateral > (xhv_vault * total_vbs):
         results['Error Message'] = 'not enough collateral available'
         return results
 
