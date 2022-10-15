@@ -1,21 +1,26 @@
-from vault_backed_shoring.vbs import max_onshore
+import math
+import beavis
+import pandas as pd
+import numpy as np
 
-# static_parameters = dict(
-#     min_vbs = 1,
-#     min_shore_amount = 1, # min onshore amount
-#     block_cap_mult   = 2500,
-#     mcap_ratio_mult  = 40,
+from vault_backed_shoring.vbs import max_onshore, specific_onshore
+
+static_parameters = dict( # TODO: move to config
+    min_vbs = 1,
+    min_shore_amount = 1, # min onshore amount
+    block_cap_mult   = 2500,
+    mcap_ratio_mult  = 40,
     
-#     # For changing the condition for "good" and "bad" protocol state
-#     state_mcap_ratio = 0.9,
-#     slippage_mult_good = 3,
-#     slippage_mult_bad  = 10,
+    # For changing the condition for "good" and "bad" protocol state
+    state_mcap_ratio = 0.9,
+    slippage_mult_good = 3,
+    slippage_mult_bad  = 10,
 
-#     locktime_offshore = 21,
-#     locktime_onshore  = 21,
-#     conversion_fee_offshore = 1.5,
-#     conversion_fee_onshore  = 1.5,
-# )
+    locktime_offshore = 21,
+    locktime_onshore  = 21,
+    conversion_fee_offshore = 1.5,
+    conversion_fee_onshore  = 1.5,
+)
 
 # # round_to(dfs, decimals=)
 
@@ -31,7 +36,7 @@ from vault_backed_shoring.vbs import max_onshore
 #         static_parameters=static_parameters,
 #     )
 
-# def test_df(df, test_func=test_row):
+# def test_df(df, test_func):
 #     # return df.apply(lambda x: [*test_row(x)], axis=1)
 #     # return df.transform(test_row, axis=1)
 #     return [test_func(row) for index, row in df.iterrows()]
@@ -240,8 +245,115 @@ from vault_backed_shoring.vbs import max_onshore
 
 # print('test_max_onshore')
 # test_max_onshore('tests/Simulation_1.csv')
-
 def test_max_onshore():
-    print(max_onshore)
-    print('WHERE DO I PUT MY TEST CSVs?')
-    assert False
+    # print(max_onshore)
+    # print(pd.read_csv('tests/Simulation_1.csv', sep='\t'))#.iloc[:12]#.reset_index()
+
+    assert True
+
+
+# # Simulation inputs
+# shore_type   = st.radio("Shore Type", ["Onshore", "Offshore"])
+# xhv_price    = st.number_input("XHV Price", min_value=0.00001, value=0.5, step=0.10)
+# xhv_qty      = st.number_input("Amount of unlocked XHV in vault", min_value=0.0, step=10000.0)
+# xusd_qty     = st.number_input("Amount of unlocked xUSD in vault", min_value=0.0, step=10000.0)
+# xhv_supply   = st.number_input("Number of XHV in circulation", min_value=xhv_qty, value=2.8*10E6, max_value=10E12, step=10000.0)
+# xassets_mcap = st.number_input("Market cap of all assets (in USD)", min_value=0.01, value=1.6*10E6, max_value=10E12, step=10000.0)
+
+        # 'Shore Type': 'Onshore Specific',
+        # 'XHV (vault)': xhv_vault,
+        # 'XHV to offshore': xhv_to_offshore,
+        # 'xUSD (vault)': xusd_vault,
+        # 'xUSD to onshore': xusd_to_onshore,
+        # 'XHV Supply': xhv_supply,
+        # 'XHV Price': xhv_price,
+        # 'XHV Mcap': xhv_mcap,
+        # 'xAssets Mcap': xassets_mcap,
+        # 'Mcap Ratio': 0, # line 10 of the csv is wack yo TODO: fix??
+        # 'Spread Ratio': 0,
+        # 'Mcap VBS': 0, 
+        # 'Spread VBS': 0,
+        # 'Slippage VBS': 0,
+        # 'Total VBS': 0,
+        # 'Max Offshore XHV': 0,
+        # 'Max Onshore xUSD': 0,
+        # 'Collateral Needed (XHV)': 0,
+        # 'Error Message': np.nan,
+
+# def base_test(test_file):
+#     df = pd.read_csv(test_file, sep='\t')
+#     # assert True
+#     #             xhv_vault=row['XHV (vault)'],
+#     #             # xhv_to_offshore=row['XHV to offshore'],
+#     #             xusd_vault=row['xUSD (vault)'],
+#     #             # xusd_to_onshore=row['xUSD to onshore'],
+#     #             xhv_price=row['XHV Price'],
+#     #             xhv_supply=row['XHV Supply'],
+#     #             xassets_mcap=row['xAssets Mcap'],
+
+def base_spec_onshore_test(df, column, rel_tol=1e-9, abs_tol=0):
+    input_cols = ['XHV (vault)', 'XHV to offshore', 'xUSD (vault)', 'xUSD to onshore', 'XHV Price', 'XHV Supply', 'xAssets Mcap']
+    test_cols = input_cols + [column]
+
+    def test_spec_row(row):
+        return specific_onshore(
+            xhv_vault=row['XHV (vault)'],
+            xhv_to_offshore=row['XHV to offshore'],
+            xusd_vault=row['xUSD (vault)'],
+            xusd_to_onshore=row['xUSD to onshore'],
+            xhv_price=row['XHV Price'],
+            xhv_supply=row['XHV Supply'],
+            xassets_mcap=row['xAssets Mcap'],
+
+            static_parameters=static_parameters,
+        )
+    
+    # results_list = [test_spec_row(row) for index, row in df.iterrows()]
+
+    # results_df = pd.DataFrame(results_list)
+
+    # beavis.assert_approx_pd_equality(df[test_cols], results_df[test_cols], abs_tol, check_dtype=False)
+
+    for index, row in df.iterrows():
+        truth = row[column]
+
+        result = specific_onshore(
+                xhv_vault=row['XHV (vault)'],
+                xhv_to_offshore=row['XHV to offshore'],
+                xusd_vault=row['xUSD (vault)'],
+                xusd_to_onshore=row['xUSD to onshore'],
+                xhv_price=row['XHV Price'],
+                xhv_supply=row['XHV Supply'],
+                xassets_mcap=row['xAssets Mcap'],
+
+                static_parameters=static_parameters,
+            )
+
+        beavis.assert_approx_pd_equality(
+            df.iloc[index:index+1][test_cols],
+            pd.DataFrame([result])[test_cols],
+            abs_tol, check_dtype=False, check_index=False)
+
+        # assert np.round(truth, decimals=round_to) == np.round(result[column], decimals=round_to)
+        # assert math.isclose(truth, result[column], rel_tol=rel_tol, abs_tol=abs_tol)
+
+def test_spec_onshore_xhv_mcap():
+    round_to = 4
+    test_file = 'tests/Specific_Onshores.csv'
+    df = pd.read_csv(test_file, sep='\t')
+    base_spec_onshore_test(df, 'XHV Mcap', abs_tol=0.0001)
+
+def test_spec_onshore_mcap_ratio():
+    round_to = 4
+    test_file = 'tests/Specific_Onshores.csv'
+    df = pd.read_csv(test_file, sep='\t')
+    base_spec_onshore_test(df, 'Mcap Ratio', abs_tol=0.005)
+
+
+
+# https://github.com/MrPowers/beavis/blob/main/beavis/testing.py#L70
+
+
+# Pytests with DataFrames
+# https://levelup.gitconnected.com/advanced-pytest-techniques-i-learned-while-contributing-to-pandas-7ba1465b65eb
+# https://towardsdatascience.com/getting-started-unit-testing-with-pytest-9cba6d366d61

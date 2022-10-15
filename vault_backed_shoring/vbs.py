@@ -827,7 +827,7 @@ if __name__ == "__main__":
     # print('test_spec_onshore')
     # test_spec_onshore('tests/Specific_Onshores.csv')
 
-
+    import beavis
     def test_max_onshore(test_file):
         df = pd.read_csv(test_file, sep='\t')#.iloc[:12]#.reset_index()
 
@@ -861,15 +861,16 @@ if __name__ == "__main__":
         ]
 
         # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.testing.assert_frame_equal.html
-        return pd.testing.assert_frame_equal(
-            left=df.drop(drop_test_cols, axis=1),
-            right=results_df.drop(drop_test_cols, axis=1),
+        return beavis.assert_approx_pd_equality(
+            df.drop(drop_test_cols, axis=1),
+            results_df.drop(drop_test_cols, axis=1),
+            0.1,
             check_dtype=False,
-            check_exact=False,
+            # check_exact=False,
             # rtol=1e-1,
-            atol=0.1,#1e-3,
+            # atol=0.1,#1e-3,
         )
 
     print('test_max_onshore')
-    test_max_onshore('tests/Simulation_1.csv')
+    test_max_onshore('../tests/Simulation_1.csv')
 

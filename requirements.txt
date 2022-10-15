@@ -1,4 +1,7 @@
 pandas
 streamlit
 notebook
+
+# test reqs
 pytest
+beavis
