@@ -1,10 +1,10 @@
 import pandas as pd
 import streamlit as st
 
-from vbs import shore
+from vault_backed_shoring.vbs import shore
 
 
-APP_VERSION = "0.0.3"
+APP_VERSION = "0.0.3" # TODO: grab this from setup.py or whatever https://stackoverflow.com/questions/2058802/how-can-i-get-the-version-defined-in-setup-py-setuptools-in-my-package
 PROPOSAL_VERSION = 4
 # TESTING = True
 
