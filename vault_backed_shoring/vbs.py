@@ -6,8 +6,8 @@ import streamlit as st
 def shore(
     shore_type,
     xhv_price,
-    xhv_qty,
-    xusd_qty,
+    xhv_vault,
+    xusd_vault,
     xhv_supply,
     xassets_mcap,
 
@@ -83,8 +83,9 @@ def shore(
     # LOGIC SPLITS HERE
     slippage_mult = static_parameters['slippage_mult_good'] if is_healthy else \
                     static_parameters['slippage_mult_bad']
-    if   shore_type == "Onshore":
-        pass
+    if shore_type == "Onshore":
+        results = max_onshore(xhv_vault, xusd_vault, xhv_price, xhv_supply, xassets_mcap, static_parameters) # TODOing
+
     elif shore_type == "Offshore":
         # spec_off = specific_offshore(
         #     xhv_price,
@@ -117,7 +118,7 @@ def shore(
         pass
 
     # TODO LOGIC SPLITS HERE
-    new_mcap_ratio = ((xhv_qty * xhv_price) + xassets_mcap) / ((xhv_supply - xhv_qty) * xhv_price)
+    new_mcap_ratio = ((xhv_vault * xhv_price) + xassets_mcap) / ((xhv_supply - xhv_vault) * xhv_price)
     # mcap_ratio_increase = (new_mcap_ratio - mcap_ratio) / mcap_ratio
     mcap_ratio_increase = (new_mcap_ratio / mcap_ratio) - 1
     slippage_vbs = math.sqrt(mcap_ratio_increase) * slippage_mult
@@ -127,8 +128,8 @@ def shore(
     # TODO: send `sim` to functions
     # TODO: update sim with returned values
 
-    # if   sim["Shore Type"] == "Onshore":
-    #     pass
+    # if sim["Shore Type"] == "Onshore":
+    #     results = max_onshore(xhv_vault, xusd_vault, xhv_price, xhv_supply, xassets_mcap, static_parameters)
     # elif sim["Shore Type"] == "Offshore":
     #     pass
 
@@ -142,23 +143,23 @@ def shore(
     # Simulation Values
     sim = {
         "Shore Type": shore_type,
-        "XHV (vault)": xhv_qty,
-        "xUSD (vault)": xusd_qty,
+        "XHV (vault)": xhv_vault,
+        "xUSD (vault)": xusd_vault,
         "XHV Supply": xhv_supply,
         "XHV Price": xhv_price,
         "XHV Mcap": xhv_mcap,
         "xAssets Mcap": xassets_mcap,
-        "Mcap Ratio": round(mcap_ratio, 4),
-        "Spread Ratio": round(spread_ratio, 4),
-        "Mcap VBS": round(mcap_vbs, 4),
-        "Spread VBS": round(spread_vbs, 4),
-        "Slippage VBS": round(slippage_vbs, 4), # TODO: fix!
-        "Total VBS": "TODO",
+        # "Mcap Ratio": round(mcap_ratio, 4),
+        # "Spread Ratio": round(spread_ratio, 4),
+        # "Mcap VBS": round(mcap_vbs, 4),
+        # "Spread VBS": round(spread_vbs, 4),
+        # "Slippage VBS": round(slippage_vbs, 4), # TODO: fix!
+        # "Total VBS": "TODO",
         "Max Offshore xUSD": "TODO",
         "Max Offshore XHV": "TODO",
         "Max Onshore xUSD": "TODO",
         "Max Onshore XHV": "TODO",
-        'Collateral Needed (XHV)': "TODO",
+        'Collateral Needed (XHV)': results['Collateral Needed (XHV)'],
         'Error Message': "TODO",
         # f"Max {shore_type} xUSD": "heyyoo",
         # f"Max {shore_type} XHV": "heyyoo",
@@ -186,6 +187,9 @@ def shore(
     #     # f"Max {shore_type} XHV": "heyyoo",
     #     "Elapsed days": "TODO",#(len(st.session_state['simulation_list']) + 1) * 21,
     #     }
+    
+
+
     return sim
 
 
@@ -655,8 +659,8 @@ if __name__ == "__main__":
         return shore(
             shore_type=row['Shore Type'],
             xhv_price=row['XHV Price'],#.astype(float),
-            xhv_qty=row['XHV (vault)'],#.astype(float),
-            xusd_qty=row['xUSD (vault)'],#.astype(float),
+            xhv_vault=row['XHV (vault)'],#.astype(float),
+            xusd_vault=row['xUSD (vault)'],#.astype(float),
             xhv_supply=row['XHV Supply'],#.astype(float),
             xassets_mcap=row['xAssets Mcap'],#.astype(float),
 
