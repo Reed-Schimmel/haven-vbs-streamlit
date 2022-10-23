@@ -74,7 +74,7 @@ shore_type   = st.radio("Shore Type", ["Onshore", "Offshore"])
 xhv_price    = st.number_input("XHV Price", min_value=0.00001, value=0.5, step=0.10)
 xhv_vault    = st.number_input("Amount of unlocked XHV in vault", min_value=0.0, step=10000.0)
 xusd_vault   = st.number_input("Amount of unlocked xUSD in vault", min_value=0.0, step=10000.0)
-xhv_supply   = st.number_input("Number of XHV in circulation", min_value=xhv_qty, value=2.8*10E6, max_value=10E12, step=10000.0)
+xhv_supply   = st.number_input("Number of XHV in circulation", min_value=xhv_vault, value=2.8*10E6, max_value=10E12, step=10000.0)
 xassets_mcap = st.number_input("Market cap of all assets (in USD)", min_value=0.01, value=1.6*10E6, max_value=10E12, step=10000.0)
 
 # button to add simulation
