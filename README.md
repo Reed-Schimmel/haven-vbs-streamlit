@@ -18,7 +18,7 @@ Run simulations with this Streamlit App
 1. `conda activate vbs_streamlit`
 1. `pip install -r requirements.txt`
 
-- To run the app: `streamlit run streamlit/app.py`
+- To run the app: `streamlit run streamlit_app.py`
 - To run the tests: `pytest`
 
 
