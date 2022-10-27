@@ -96,7 +96,7 @@ def shore(
         # "Total VBS": "TODO",
         # "Max Offshore xUSD": "TODO",
         # "Max Offshore XHV": "TODO",
-        # "Max Onshore xUSD": "TODO",
+        "Max Onshore xUSD": results['Max Onshore xUSD'],
         # "Max Onshore XHV": "TODO",
         'Collateral Needed (XHV)': results['Collateral Needed (XHV)'],
         'Error Message': results['Error Message'],

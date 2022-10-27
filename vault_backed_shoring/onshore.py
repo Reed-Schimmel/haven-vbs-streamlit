@@ -237,7 +237,7 @@ def max_onshore( # TODOing <-------------------------------------------------
     # function, which will need to be verified in this function
 
     xhv_to_offshore = 0 # TODO
-    xusd_to_onshore = 0 # TODO
+    xusd_to_onshore = xusd_vault # TODO confirm
     spec_results = specific_onshore(xhv_vault, xhv_to_offshore, xusd_vault, xusd_to_onshore, xhv_price, xhv_supply, xassets_mcap, static_parameters, ignore_errors=True)
     total_collateral = spec_results['Collateral Needed (XHV)']
 
@@ -323,14 +323,13 @@ def max_onshore( # TODOing <-------------------------------------------------
     results.update({
         'Max Onshore xUSD': final_xusd_to_onshore,
 
-        'Mcap Ratio': mcap_ratio, # line 10 of the csv is wack yo TODO: fix??
-        'Spread Ratio': spread_ratio,
-        'Mcap VBS': mcap_vbs, # TODO: problem here?
-        'Spread VBS': spread_vbs,
-        'Slippage VBS': slippage_vbs,
-        'Total VBS': total_vbs,
+        # 'Mcap Ratio': mcap_ratio, # line 10 of the csv is wack yo TODO: fix??
+        # 'Spread Ratio': spread_ratio,
+        # 'Mcap VBS': mcap_vbs, # TODO: problem here?
+        # 'Spread VBS': spread_vbs,
+        # 'Slippage VBS': slippage_vbs,
+        # 'Total VBS': total_vbs,
         # 'Max Offshore XHV': -1,
-        # 'Max Onshore xUSD': -1,
         'Collateral Needed (XHV)': total_collateral,
     })
     
