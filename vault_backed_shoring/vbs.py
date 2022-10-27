@@ -34,7 +34,7 @@ def shore(
     :param static_parameters: (dict) VBS rule values for current proposal.
         min_vbs = 1,
         min_shore_amount = 1,
-        block_cap_mult   = 2500,
+        block_cap_mult   = 3000,
         mcap_ratio_mult  = 40,
         
         # For changing the condition for "good" and "bad" protocol state
