@@ -90,9 +90,17 @@ if st.button(label="Add simulation to table"):
     )
     st.session_state['simulation_list'].append(sim)
 
-st.table(st.session_state['simulation_list'])
-
 if st.session_state['simulation_list'] != []:
+    # columns = st.session_state['simulation_list'][0].keys()
+    # show_cols = st.multiselect("Show Columns", columns, default=columns)
+    # st.write(show_cols)
+
+    # sim_list = [dict(filter(lambda x: x in show_cols, sim)) for sim in st.session_state['simulation_list']]
+    # st.write(sim_list)
+    # st.table(sim_list)
+
+    st.table(st.session_state['simulation_list'])
+
     if st.button(label="Reset"):
         st.session_state['simulation_list'] = []
         st.experimental_rerun()
