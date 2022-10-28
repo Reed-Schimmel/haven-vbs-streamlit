@@ -3,6 +3,11 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
+from .base import calc_block_cap
+    # block_cap = calc_block_cap(xhv_mcap, xhv_supply, static_parameters['block_cap_mult']) # TODO: will this break all tests?
+
+OFFSHORE_ACC_THRESH = 0.0001
+
 # TODO: add st.cache
 #  function working out the amount of collateral required for offshores
 # def specific_offshore(xhv_qty, xhv_mcap, block_cap, slippage_mult):
@@ -100,19 +105,17 @@ def specific_offshore(
 
 def max_offshore(
     xhv_price,
-    xhv_qty,
-    xusd_qty,
+    xhv_vault,
+    xusd_vault,
     xhv_supply,
     xassets_mcap,
-
-    xhv_mcap,
-    # block_cap,
-    slippage_mult,
-    is_healthy,
     ):
     '''The “max” functions are intended for when the user wants to offshore or onshore the
     maximum amount possible. This will allow us to introduce a “Max” button in the vault,
     which will save users a lot of time trying to guess what that maximum value might be.'''
+
+    xhv_mcap = xhv_price * xhv_supply
+
     results = {
         'Shore Type': 'Offshore',
         'XHV (vault)': xhv_vault,
