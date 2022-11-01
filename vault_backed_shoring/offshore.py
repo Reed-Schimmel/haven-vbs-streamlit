@@ -10,7 +10,7 @@ OFFSHORE_ACC_THRESH = 0.0001
 # TODO: add st.cache
 #  function working out the amount of collateral required for offshores
 # def specific_offshore(xhv_qty, xhv_mcap, block_cap, slippage_mult):
-def specific_offshore(
+def specific_offshore( # TODO: restore docstring
     xhv_vault,
     xhv_to_offshore,
     xusd_vault,
