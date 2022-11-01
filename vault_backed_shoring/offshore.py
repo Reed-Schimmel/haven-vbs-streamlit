@@ -25,6 +25,28 @@ def specific_offshore( # TODO: restore docstring
 
     xhv_mcap = xhv_price * xhv_supply
     
+    results = {
+        'Shore Type': 'Offshore Specific',
+        'XHV (vault)': xhv_vault,
+        'XHV to offshore': xhv_to_offshore,
+        'xUSD (vault)': xusd_vault,
+        'xUSD to onshore': xusd_to_onshore,
+        'XHV Supply': xhv_supply,
+        'XHV Price': xhv_price,
+        'XHV Mcap': xhv_mcap,
+        'xAssets Mcap': xassets_mcap,
+        'Mcap Ratio': 0, # line 10 of the csv is wack yo TODO: fix??
+        'Spread Ratio': 0,
+        'Mcap VBS': 0, 
+        'Spread VBS': 0,
+        'Slippage VBS': 0,
+        'Total VBS': 0,
+        'Max Offshore XHV': 0,
+        'Max Onshore xUSD': 0,
+        'Collateral Needed (XHV)': 0,
+        'Error Message': np.nan,
+    }
+
     if (not ignore_errors) and xhv_to_offshore < static_parameters['min_shore_amount']:
         results['Error Message'] = 'incorrect offshore amount' # -1
         return results
@@ -54,16 +76,34 @@ def specific_offshore( # TODO: restore docstring
     # set min or max VBS if the calculated VBS is out of bounds
     total_vbs = max(current_vbs + slippage_vbs, static_parameters['min_vbs'])
     
-
-    # total amount of unlocked XHV needed for the onshore specified (includes onshore amount)
+    # total amount of unlocked XHV needed for the offshore specified (includes offshore amount)
     total_collateral = math.floor((xhv_to_offshore * total_vbs) + xhv_to_offshore)
     if (not ignore_errors) and (total_collateral > xhv_vault):
         results['Error Message'] = 'not enough collateral available' # -4
         return results
     
-    return total_collateral # TODO: make this the results dict!!!!!!!!
-    # I WAS RIGH THERE TODO ING <-------------------------------------------------------------------------
-    # then work on max
+    results.update({
+        # 'Shore Type': 'Onshore Specific',
+        # 'XHV (vault)': xhv_vault,
+        # 'XHV to offshore': xhv_to_offshore,
+        # 'xUSD (vault)': xusd_vault,
+        # 'xUSD to onshore': xusd_to_onshore,
+        # 'XHV Supply': xhv_supply,
+        # 'XHV Price': xhv_price,
+        # 'XHV Mcap': xhv_mcap,
+        # 'xAssets Mcap': xassets_mcap,
+        # 'Mcap Ratio': mcap_ratio, # line 10 of the csv is wack yo TODO: fix??
+        # 'Spread Ratio': spread_ratio,
+        # 'Mcap VBS': mcap_vbs, # TODO: problem here?
+        # 'Spread VBS': spread_vbs,
+        'Slippage VBS': slippage_vbs,
+        'Total VBS': total_vbs,
+        # 'Max Offshore XHV': -1,
+        # 'Max Onshore xUSD': -1,
+        'Collateral Needed (XHV)': total_collateral,
+        # 'Error Message': err_msg,
+    })
+    return results
 
 def max_offshore(
     xhv_price,
