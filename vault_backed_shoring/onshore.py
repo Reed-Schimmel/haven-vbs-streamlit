@@ -3,6 +3,8 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
+from .base import calc_block_cap
+
 ONSHORE_ACC_THRESH = 0.0005
 
 # TODO: add st.cache
@@ -84,7 +86,9 @@ def specific_onshore(
     # assert(xhv_mcap > 0) # TODO: enable? prolly no cuz it crashes exec
 
     # validation – ensure onshore amount is not greater than block cap
-    block_cap = math.sqrt(xhv_mcap * static_parameters['block_cap_mult']) # TODO: confirm this is the same for all shoring
+    # block_cap = math.sqrt(xhv_mcap * static_parameters['block_cap_mult']) # TODO: confirm this is the same for all shoring
+    # block cap v2
+    block_cap = calc_block_cap(xhv_mcap, xhv_supply, static_parameters['block_cap_mult']) # TODO: will this break all tests?
     if (not ignore_errors) and amount_to_onshore_xhv > block_cap:
         # Error code -4, no message
         return results
@@ -160,7 +164,7 @@ def specific_onshore(
     return results
 
 # function working out the maximum amount of xUSD that can be onshored
-def max_onshore( # TODOing <-------------------------------------------------
+def max_onshore(
     xhv_vault, # Unlocked
     # xhv_to_offshore,
     xusd_vault, # Unlocked
@@ -286,7 +290,7 @@ def max_onshore( # TODOing <-------------------------------------------------
         # call the specificOnshore() function in order to return the actual collateral
         # needed, from which we can work out the accuracy. We then add or subtract a %
         # to the current onshore amount until the desired accuracy is met.
-        temp_collateral = specific_onshore(
+        temp_results = specific_onshore(
             xhv_vault,
             xhv_to_offshore,
             xusd_vault,
@@ -294,7 +298,8 @@ def max_onshore( # TODOing <-------------------------------------------------
             xhv_price,
             xhv_supply,
             xassets_mcap,
-            static_parameters, ignore_errors=True)['Collateral Needed (XHV)']
+            static_parameters, ignore_errors=True)
+        temp_collateral = temp_results['Collateral Needed (XHV)']
         if temp_collateral > xhv_vault:
             # collateral higher than amount of unlocked XHV, so we use the % difference
             # to subtract from the onshore amount
@@ -328,7 +333,7 @@ def max_onshore( # TODOing <-------------------------------------------------
         # 'Mcap VBS': mcap_vbs, # TODO: problem here?
         # 'Spread VBS': spread_vbs,
         # 'Slippage VBS': slippage_vbs,
-        # 'Total VBS': total_vbs,
+        'Total VBS': temp_results['Total VBS'], #total_vbs, # TODO: confirm with Roy
         # 'Max Offshore XHV': -1,
         'Collateral Needed (XHV)': total_collateral,
     })

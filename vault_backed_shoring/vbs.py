@@ -34,7 +34,7 @@ def shore(
     :param static_parameters: (dict) VBS rule values for current proposal.
         min_vbs = 1,
         min_shore_amount = 1,
-        block_cap_mult   = 2500,
+        block_cap_mult   = 3000,
         mcap_ratio_mult  = 40,
         
         # For changing the condition for "good" and "bad" protocol state
@@ -93,9 +93,9 @@ def shore(
         # "Mcap VBS": round(mcap_vbs, 4),
         # "Spread VBS": round(spread_vbs, 4),
         # "Slippage VBS": round(slippage_vbs, 4), # TODO: fix!
-        # "Total VBS": "TODO",
+        "Total VBS": results['Total VBS'], # TODO: confirm with Roy
         # "Max Offshore xUSD": "TODO",
-        # "Max Offshore XHV": "TODO",
+        "Max Offshore XHV": results['Max Offshore XHV'],
         "Max Onshore xUSD": results['Max Onshore xUSD'],
         # "Max Onshore XHV": "TODO",
         'Collateral Needed (XHV)': results['Collateral Needed (XHV)'],

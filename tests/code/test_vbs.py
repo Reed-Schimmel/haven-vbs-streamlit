@@ -8,7 +8,7 @@ from vault_backed_shoring.vbs import max_onshore, specific_onshore
 static_parameters = dict( # TODO: move to config
     min_vbs = 1,
     min_shore_amount = 1, # min onshore amount
-    block_cap_mult   = 2500,
+    block_cap_mult   = 3000,
     mcap_ratio_mult  = 40,
     
     # For changing the condition for "good" and "bad" protocol state

@@ -4,7 +4,7 @@ import streamlit as st
 from vault_backed_shoring.vbs import shore
 
 
-APP_VERSION = "0.0.4" # TODO: grab this from setup.py or whatever https://stackoverflow.com/questions/2058802/how-can-i-get-the-version-defined-in-setup-py-setuptools-in-my-package
+APP_VERSION = "0.1.0" # TODO: grab this from setup.py or whatever https://stackoverflow.com/questions/2058802/how-can-i-get-the-version-defined-in-setup-py-setuptools-in-my-package
 PROPOSAL_VERSION = 4
 # TESTING = True
 
@@ -27,7 +27,7 @@ if 'static_parameters' not in st.session_state:
     st.session_state['static_parameters'] = dict(
         min_vbs = 1,
         min_shore_amount = 1,
-        block_cap_mult   = 2500,
+        block_cap_mult   = 3000,
         mcap_ratio_mult  = 40,
         
         # For changing the condition for "good" and "bad" protocol state
@@ -48,7 +48,7 @@ if 'static_parameters' not in st.session_state:
     #     st.session_state['static_parameters'] = dict(
     #         min_vbs = st.number_input('Minimum VBS', value=1),
     #         min_shore_amount = st.number_input('Minimum amount of XHV that can be on/offshored', value=1),
-    #         block_cap_mult   = st.number_input('Multiplier which calculates the amount one can on/offshore inside a single block', value=2500),
+    #         block_cap_mult   = st.number_input('Multiplier which calculates the amount one can on/offshore inside a single block', value=3000),
     #         mcap_ratio_mult  = st.number_input('Multiplier for working out the mcap VBS', value=40),
             
     #         # For changing the condition for "good" and "bad" protocol state
