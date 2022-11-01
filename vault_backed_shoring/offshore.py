@@ -3,8 +3,7 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
-from .base import calc_block_cap
-    # block_cap = calc_block_cap(xhv_mcap, xhv_supply, static_parameters['block_cap_mult']) # TODO: will this break all tests?
+from .base import calc_block_cap, calc_current_vbs, calc_slippage_vbs
 
 OFFSHORE_ACC_THRESH = 0.0001
 
@@ -12,96 +11,59 @@ OFFSHORE_ACC_THRESH = 0.0001
 #  function working out the amount of collateral required for offshores
 # def specific_offshore(xhv_qty, xhv_mcap, block_cap, slippage_mult):
 def specific_offshore(
+    xhv_vault,
+    xhv_to_offshore,
+    xusd_vault,
+    xusd_to_onshore,
     xhv_price,
-    xhv_qty,
-    xusd_qty,
     xhv_supply,
     xassets_mcap,
 
-    xhv_mcap,
-    # block_cap,
-    slippage_mult,
-    is_healthy,
+    static_parameters,#=st.session_state['static_parameters'],
+    ignore_errors=False,
     ):
-    '''The “specific” functions are intended for when someone enters an amount in the vault,
-    and it will calculate the required collateral.
+
+    xhv_mcap = xhv_price * xhv_supply
     
-    test_df:
-        Shore Type                  object
-        XHV (vault)                float64
-        XHV to offshore            float64
-        xUSD (vault)               float64
-        xUSD to onshore            float64
-        XHV Supply                 float64
-        XHV Price                  float64
-        XHV Mcap                   float64
-        xAssets Mcap               float64
-        Mcap Ratio                 float64
-        Spread Ratio               float64
-        Mcap VBS                   float64
-        Spread VBS                 float64
-        Slippage VBS               float64
-        Total VBS                  float64
-        Max Offshore XHV           float64
-        Max Onshore xUSD           float64
-        Collateral Needed (XHV)    float64
-        Error Message               object
-        dtype: object
+    if (not ignore_errors) and xhv_to_offshore < static_parameters['min_shore_amount']:
+        results['Error Message'] = 'incorrect offshore amount' # -1
+        return results
+    if (not ignore_errors) and xhv_vault < static_parameters['min_shore_amount']:
+        results['Error Message'] = 'not enough unlocked XHV available' # -2
+        return results
 
-    '''
-    errs = [nan, 'offshore amount greater than block limit',
-       'incorrect offshore amount', 'not enough collateral available'],
-    assert(xhv_qty >= st.session_state['static_parameters']['min_shore_amount'])
-    # assert(enuff unlocked)
-    # ensure offshore amount is not greater than block cap
-    block_cap = math.sqrt(xhv_mcap * st.session_state['static_parameters']['block_cap_mult'])
-    assert(block_cap >= xhv_qty)
+    block_cap = calc_block_cap(xhv_mcap, xhv_supply, static_parameters['block_cap_mult'])
+    if (not ignore_errors) and xhv_to_offshore > block_cap:
+        results['Error Message'] = 'offshore amount greater than block limit' # -3
+        # Error code -3, no message in ref code but this code includes it
+        return results
 
-
-    # st.session_state['static_parameters']['mcap_ratio_mult'] # mcapRatioMultiplier
-    # current_vbs
-    
-    mcap_ratio = xassets_mcap / xhv_mcap
-    new_mcap_ratio = ((xhv_qty * xhv_price) + xassets_mcap) / ((xhv_supply - xhv_qty) * xhv_price)
-
+    mcap_ratio   = (xassets_mcap / xhv_mcap) # cannot be < 0
+    new_mcap_ratio = ((xhv_to_offshore * xhv_price) + xassets_mcap ) / ((xhv_supply - xhv_to_offshore) * xhv_price)
     if mcap_ratio <= 0:
-    # mcap_ratio_increase = ()
         increase_ratio = new_mcap_ratio
         current_vbs = 0
     else:
-        increase_ratio = abs((new_mcap_ratio / mcap_ratio) -1) # TODO: did the author use the right formula here?
-        mcap_vbs = math.exp((mcap_ratio + math.sqrt(mcap_ratio)) * 2) - 0.5 if is_healthy else \
-                math.sqrt(mcap_ratio) * st.session_state['static_parameters']['mcap_ratio_mult']
-        current_vbs = mcap_vbs
+        increase_ratio = (new_mcap_ratio / mcap_ratio) - 1
+        current_vbs = calc_current_vbs(mcap_ratio, static_parameters['mcap_ratio_mult'])
+    increase_ratio = abs(increase_ratio)
 
-    slippage_vbs = math.sqrt(increase_ratio) * slippage_mult
-    total_vbs = max(current_vbs + slippage_vbs, st.session_state['static_parameters']['min_vbs'])
-    total_collateral = math.floor((xhv_qty * total_vbs) + xhv_qty)
-    return total_collateral
+    slippage_mult = static_parameters['slippage_mult_good'] if mcap_ratio < 0.1 else static_parameters['slippage_mult_bad']
+    slippage_vbs = calc_slippage_vbs(increase_ratio, slippage_mult)
 
-    return {
-        'Shore Type': 'Offshore Specific',
-        'XHV (vault)': 'TODO',
-        'XHV to offshore': 'TODO',
-        'xUSD (vault)': 'TODO',
-        'xUSD to onshore': 'TODO',
-        'XHV Supply': 'TODO',
-        'XHV Price': 'TODO',
-        'XHV Mcap': 'TODO',
-        'xAssets Mcap': 'TODO',
-        'Mcap Ratio': 'TODO',
-        'Spread Ratio': 'TODO',
-        'Mcap VBS': 'TODO',
-        'Spread VBS': 'TODO',
-        'Slippage VBS': 'TODO',
-        'Total VBS': 'TODO',
-        'Max Offshore XHV': 'TODO',
-        'Max Onshore xUSD': 'TODO',
-        'Collateral Needed (XHV)': 'TODO',
-        'Error Message': 'TODO',
-    }
+    # set min or max VBS if the calculated VBS is out of bounds
+    total_vbs = max(current_vbs + slippage_vbs, static_parameters['min_vbs'])
+    
 
-
+    # total amount of unlocked XHV needed for the onshore specified (includes onshore amount)
+    total_collateral = math.floor((xhv_to_offshore * total_vbs) + xhv_to_offshore)
+    if (not ignore_errors) and (total_collateral > xhv_vault):
+        results['Error Message'] = 'not enough collateral available' # -4
+        return results
+    
+    return total_collateral # TODO: make this the results dict!!!!!!!!
+    # I WAS RIGH THERE TODO ING <-------------------------------------------------------------------------
+    # then work on max
 
 def max_offshore(
     xhv_price,
