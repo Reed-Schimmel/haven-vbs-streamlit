@@ -93,7 +93,7 @@ def shore(
         # "Mcap VBS": round(mcap_vbs, 4),
         # "Spread VBS": round(spread_vbs, 4),
         # "Slippage VBS": round(slippage_vbs, 4), # TODO: fix!
-        # "Total VBS": "TODO",
+        "Total VBS": results['Total VBS'], # TODO: confirm with Roy
         # "Max Offshore xUSD": "TODO",
         # "Max Offshore XHV": "TODO",
         "Max Onshore xUSD": results['Max Onshore xUSD'],

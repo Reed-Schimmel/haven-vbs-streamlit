@@ -290,7 +290,7 @@ def max_onshore(
         # call the specificOnshore() function in order to return the actual collateral
         # needed, from which we can work out the accuracy. We then add or subtract a %
         # to the current onshore amount until the desired accuracy is met.
-        temp_collateral = specific_onshore(
+        temp_results = specific_onshore(
             xhv_vault,
             xhv_to_offshore,
             xusd_vault,
@@ -298,7 +298,8 @@ def max_onshore(
             xhv_price,
             xhv_supply,
             xassets_mcap,
-            static_parameters, ignore_errors=True)['Collateral Needed (XHV)']
+            static_parameters, ignore_errors=True)
+        temp_collateral = temp_results['Collateral Needed (XHV)']
         if temp_collateral > xhv_vault:
             # collateral higher than amount of unlocked XHV, so we use the % difference
             # to subtract from the onshore amount
@@ -332,7 +333,7 @@ def max_onshore(
         # 'Mcap VBS': mcap_vbs, # TODO: problem here?
         # 'Spread VBS': spread_vbs,
         # 'Slippage VBS': slippage_vbs,
-        # 'Total VBS': total_vbs,
+        'Total VBS': temp_results['Total VBS'], #total_vbs, # TODO: confirm with Roy
         # 'Max Offshore XHV': -1,
         'Collateral Needed (XHV)': total_collateral,
     })
