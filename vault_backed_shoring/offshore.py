@@ -118,27 +118,20 @@ def max_offshore(
 
     xhv_mcap = xhv_price * xhv_supply
 
-    results = {
-        'Shore Type': 'Offshore',
-        'XHV (vault)': xhv_vault,
-        # 'XHV to offshore': xhv_to_offshore,
-        'xUSD (vault)': xusd_vault,
-        # 'xUSD to onshore': xusd_to_onshore,
-        'XHV Supply': xhv_supply,
-        'XHV Price': xhv_price,
-        'XHV Mcap': xhv_mcap,
-        'xAssets Mcap': xassets_mcap,
-        'Mcap Ratio': 0,
-        'Spread Ratio': 0,
-        'Mcap VBS': 0,
-        'Spread VBS': 0,
-        'Slippage VBS': 0,
-        'Total VBS': 0,
-        'Max Offshore XHV': 0,
-        'Max Onshore xUSD': 0,
-        'Max Onshore XHV': 0,
-        'Collateral Needed (XHV)': "TODO",
-        'Error Message': "TODO",#np.nan,
-    }
+    init_results = specific_offshore(
+        xhv_vault,
+        xhv_vault,
+        xusd_vault,
+        0,
+        xhv_price,
+        xhv_supply,
+        xassets_mcap,
+        static_parameters)
 
-    return results
+    if init_results['Error Message'] != np.nan:
+        return init_results # was an error
+        # TODO: ing I was here <--------------------------
+
+    
+
+    # return results
