@@ -95,7 +95,7 @@ def shore(
         # "Slippage VBS": round(slippage_vbs, 4), # TODO: fix!
         "Total VBS": results['Total VBS'], # TODO: confirm with Roy
         # "Max Offshore xUSD": "TODO",
-        # "Max Offshore XHV": "TODO",
+        "Max Offshore XHV": results['Max Offshore XHV'],
         "Max Onshore xUSD": results['Max Onshore xUSD'],
         # "Max Onshore XHV": "TODO",
         'Collateral Needed (XHV)': results['Collateral Needed (XHV)'],

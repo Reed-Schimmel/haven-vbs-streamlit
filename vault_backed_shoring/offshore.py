@@ -106,9 +106,9 @@ def specific_offshore( # TODO: restore docstring
     return results
 
 def max_offshore(
-    xhv_price,
     xhv_vault,
     xusd_vault,
+    xhv_price,
     xhv_supply,
     xassets_mcap,
 
@@ -205,14 +205,14 @@ def max_offshore(
         # 'XHV Mcap': xhv_mcap,
         # 'xAssets Mcap': xassets_mcap,
         'Mcap Ratio': mcap_ratio, # line 10 of the csv is wack yo TODO: fix??
-        'Spread Ratio': spread_ratio,
-        'Mcap VBS': mcap_vbs, # TODO: problem here?
-        'Spread VBS': spread_vbs,
+        # 'Spread Ratio': spread_ratio,
+        'Mcap VBS': current_vbs, # TODO: problem here?
+        # 'Spread VBS': spread_vbs,
         'Slippage VBS': slippage_vbs,
         'Total VBS': total_vbs, # TODO or should it be? temp_spec_result['Total VBS'],
         'Max Offshore XHV': actual_offshore_amount,
         # 'Max Onshore xUSD': -1,
-        'Collateral Needed (XHV)': total_collateral,
+        'Collateral Needed (XHV)': temp_collateral,#total_collateral,
         # 'Error Message': err_msg,
     })
     return results
