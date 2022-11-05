@@ -4,6 +4,11 @@ import streamlit as st
 from vault_backed_shoring.vbs import shore
 
 
+@st.cache
+def convert_df(df):
+    # IMPORTANT: Cache the conversion to prevent computation on every rerun
+    return df.to_csv().encode('utf-8')
+
 APP_VERSION = "0.1.0" # TODO: grab this from setup.py or whatever https://stackoverflow.com/questions/2058802/how-can-i-get-the-version-defined-in-setup-py-setuptools-in-my-package
 PROPOSAL_VERSION = 4
 # TESTING = True
@@ -77,30 +82,40 @@ xusd_vault   = st.number_input("Amount of unlocked xUSD in vault", min_value=0.0
 xhv_supply   = st.number_input("Number of XHV in circulation", min_value=xhv_vault, value=2.8*10E6, max_value=10E12, step=10000.0)
 xassets_mcap = st.number_input("Market cap of all assets (in USD)", min_value=0.01, value=1.6*10E6, max_value=10E12, step=10000.0)
 
+col1a, col2a = st.columns([1,3], gap="small")
 # button to add simulation
-if st.button(label="Add simulation to table"):
-    sim = shore(
-        shore_type,
-        xhv_price,
-        xhv_vault,
-        xusd_vault,
-        xhv_supply,
-        xassets_mcap,
-        static_parameters=st.session_state['static_parameters'],
-    )
-    st.session_state['simulation_list'].append(sim)
+with col1a:
+    if st.button(label="Add simulation to table"):
+        sim = shore(
+            shore_type,
+            xhv_price,
+            xhv_vault,
+            xusd_vault,
+            xhv_supply,
+            xassets_mcap,
+            static_parameters=st.session_state['static_parameters'],
+        )
+        st.session_state['simulation_list'].append(sim)
 
 if st.session_state['simulation_list'] != []:
-    # columns = st.session_state['simulation_list'][0].keys()
-    # show_cols = st.multiselect("Show Columns", columns, default=columns)
-    # st.write(show_cols)
+    # st.table(st.session_state['simulation_list'])
+    df = pd.DataFrame(st.session_state['simulation_list'])
+    df_cols = df.columns.to_list()
+    with col2a:
+        with st.expander("Enabled Columns"):
+            selected_cols = st.multiselect(label="Columns", options=df_cols, default=df_cols, label_visibility="collapsed")
+    st.dataframe(df[selected_cols])
 
-    # sim_list = [dict(filter(lambda x: x in show_cols, sim)) for sim in st.session_state['simulation_list']]
-    # st.write(sim_list)
-    # st.table(sim_list)
-
-    st.table(st.session_state['simulation_list'])
-
-    if st.button(label="Reset"):
-        st.session_state['simulation_list'] = []
-        st.experimental_rerun()
+    col1b, col2b, col3b = st.columns([3, 4, 1], gap="small")
+    with col1b:
+        # https://docs.streamlit.io/library/api-reference/widgets/st.download_button
+        st.download_button(
+            label="Download data as CSV",
+            data=convert_df(df),
+            file_name='VBS_simulations.csv',
+            mime='text/csv',
+        )
+    with col3b:
+        if st.button(label="Reset"):
+            st.session_state['simulation_list'] = []
+            st.experimental_rerun()
