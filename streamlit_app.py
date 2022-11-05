@@ -9,7 +9,7 @@ def convert_df(df):
     # IMPORTANT: Cache the conversion to prevent computation on every rerun
     return df.to_csv().encode('utf-8')
 
-APP_VERSION = "0.3.0" # TODO: grab this from setup.py or whatever https://stackoverflow.com/questions/2058802/how-can-i-get-the-version-defined-in-setup-py-setuptools-in-my-package
+APP_VERSION = "0.2.1" # TODO: grab this from setup.py or whatever https://stackoverflow.com/questions/2058802/how-can-i-get-the-version-defined-in-setup-py-setuptools-in-my-package
 PROPOSAL_VERSION = 4
 # TESTING = True
 
@@ -67,7 +67,7 @@ xusd_vault   = st.number_input("Unlocked xUSD", min_value=0.0, step=10000.0)
 st.markdown('#### Shoring Conditions')
 shore_type   = st.radio("Shore Type", ["Onshore", "Offshore"])
 shore_unit = "XHV" if shore_type == "Offshore" else "xUSD"
-if not st.checkbox(f"{shore_type} maximum {shore_unit}", value=True):
+if not st.checkbox(f"{shore_type} maximum {shore_unit}", value=True, disabled=True):
     max_qty = xhv_vault if shore_type == "Offshore" else xusd_vault
     amount_to_shore = st.number_input(
         label=f"Amount of {shore_unit} to {shore_type.lower()}", 
