@@ -15,7 +15,7 @@ with open(Path(BASE_DIR, "requirements.txt"), "r") as file:
 # Define our package
 setup(
     name="vault-backed-shoring",
-    version="0.2.1",
+    version="0.3.0",
     description="Calculates (On/Off)Shore for Haven Protocol 3.0",
     author="Reed Schimmel",
     author_email="reed+vbs@simplelogin.com",
