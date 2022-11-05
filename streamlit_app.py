@@ -67,7 +67,7 @@ xusd_vault   = st.number_input("Unlocked xUSD", min_value=0.0, step=10000.0)
 st.markdown('#### Shoring Conditions')
 shore_type   = st.radio("Shore Type", ["Onshore", "Offshore"])
 shore_unit = "XHV" if shore_type == "Offshore" else "xUSD"
-if not st.checkbox(f"{shore_type} maximum {shore_unit}", value=True, disabled=True):
+if not st.checkbox(f"{shore_type} maximum {shore_unit}", value=True, disabled=False):
     max_qty = xhv_vault if shore_type == "Offshore" else xusd_vault
     amount_to_shore = st.number_input(
         label=f"Amount of {shore_unit} to {shore_type.lower()}", 
@@ -103,7 +103,7 @@ if st.session_state['simulation_list'] != []:
     with col1b:
         # https://docs.streamlit.io/library/api-reference/widgets/st.download_button
         st.download_button(
-            label="Download data as CSV",
+            label="Download table as CSV",
             data=convert_df(df),
             file_name='VBS_simulations.csv',
             mime='text/csv',
