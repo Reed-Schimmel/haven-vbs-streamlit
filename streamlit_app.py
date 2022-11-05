@@ -9,7 +9,7 @@ def convert_df(df):
     # IMPORTANT: Cache the conversion to prevent computation on every rerun
     return df.to_csv().encode('utf-8')
 
-APP_VERSION = "0.2.0" # TODO: grab this from setup.py or whatever https://stackoverflow.com/questions/2058802/how-can-i-get-the-version-defined-in-setup-py-setuptools-in-my-package
+APP_VERSION = "0.2.1" # TODO: grab this from setup.py or whatever https://stackoverflow.com/questions/2058802/how-can-i-get-the-version-defined-in-setup-py-setuptools-in-my-package
 PROPOSAL_VERSION = 4
 # TESTING = True
 
@@ -46,41 +46,34 @@ if 'static_parameters' not in st.session_state:
         conversion_fee_onshore  = 1.5,
     )
 
-# with st.sidebar:
-#     show_tests = st.checkbox("Show tests", False)
-    # with st.expander("Static Parameters", expanded=False):
-    #     st.caption('The default values are set to the latest official proposal. Adjusting these is only for hypothetical VBS rules. These changes must be made before the first simulation.')
-    #     st.session_state['static_parameters'] = dict(
-    #         min_vbs = st.number_input('Minimum VBS', value=1),
-    #         min_shore_amount = st.number_input('Minimum amount of XHV that can be on/offshored', value=1),
-    #         block_cap_mult   = st.number_input('Multiplier which calculates the amount one can on/offshore inside a single block', value=3000),
-    #         mcap_ratio_mult  = st.number_input('Multiplier for working out the mcap VBS', value=40),
-            
-    #         # For changing the condition for "good" and "bad" protocol state
-    #         state_mcap_ratio = st.number_input(
-    #             label='Protocol state threshold',
-    #             help='mcap ratio < this == bad state. mcap ratio >= this == good state.',
-    #             value=0.9),
-    #         slippage_mult_good = st.number_input('During a good state, mcap ratio < "Protocol state threshold", we apply a lower multiplier', value=3),
-    #         slippage_mult_bad  = st.number_input('During a bad state, mcap ratio >= "Protocol state threshold", we apply a higher multiplier', value=10),
-
-    #         locktime_offshore = st.number_input('Offshore lock time (days)', value=21, min_value=0, step=1),
-    #         locktime_onshore  = st.number_input('Onshore lock time (days)',  value=21, min_value=0, step=1),
-    #         conversion_fee_offshore = st.number_input('Offshore conversion fee (%)', value=1.5, min_value=0.0, step=0.1),
-    #         conversion_fee_onshore  = st.number_input('Onshore conversion fee (%)',  value=1.5, min_value=0.0, step=0.1),
-    #     )
-
+# --------------- BODY ---------------
 st.title("VBS Simulator")
 st.caption(f"Proposal Version {PROPOSAL_VERSION} | Simulator Version {APP_VERSION}")
 st.markdown('---')
 
-# Simulation inputs
+### Simulation inputs
+# Market Conditions
+st.markdown('#### Market Conditions')
+xhv_price    = st.number_input("XHV Price (USD)", min_value=0.00001, value=0.5, step=0.10)
+xhv_supply   = st.number_input("Number of XHV in circulation", min_value=1.0, value=2.8*10E6, max_value=10E12, step=10000.0)
+xassets_mcap = st.number_input("Market cap of all assets (USD)", min_value=0.01, value=1.6*10E6, max_value=10E12, step=10000.0)
+
+# Vault Conditions
+st.markdown('#### Vault Conditions')
+xhv_vault    = st.number_input("Unlocked XHV", min_value=0.0, step=10000.0)
+xusd_vault   = st.number_input("Unlocked xUSD", min_value=0.0, step=10000.0)
+
+# Amount to shore
+st.markdown('#### Shoring Conditions')
 shore_type   = st.radio("Shore Type", ["Onshore", "Offshore"])
-xhv_price    = st.number_input("XHV Price", min_value=0.00001, value=0.5, step=0.10)
-xhv_vault    = st.number_input("Amount of unlocked XHV in vault", min_value=0.0, step=10000.0)
-xusd_vault   = st.number_input("Amount of unlocked xUSD in vault", min_value=0.0, step=10000.0)
-xhv_supply   = st.number_input("Number of XHV in circulation", min_value=xhv_vault, value=2.8*10E6, max_value=10E12, step=10000.0)
-xassets_mcap = st.number_input("Market cap of all assets (in USD)", min_value=0.01, value=1.6*10E6, max_value=10E12, step=10000.0)
+shore_unit = "XHV" if shore_type == "Offshore" else "xUSD"
+if not st.checkbox(f"{shore_type} maximum {shore_unit}", value=True, disabled=True):
+    max_qty = xhv_vault if shore_type == "Offshore" else xusd_vault
+    amount_to_shore = st.number_input(
+        label=f"Amount of {shore_unit} to {shore_type.lower()}", 
+        min_value=0.0, max_value=max_qty,
+        step=float(max(int(0.1 * max_qty), 1)),
+    )
 
 col1a, col2a = st.columns([1,3], gap="small")
 # button to add simulation
