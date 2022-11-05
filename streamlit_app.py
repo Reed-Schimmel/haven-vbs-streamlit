@@ -74,13 +74,29 @@ st.title("VBS Simulator")
 st.caption(f"Proposal Version {PROPOSAL_VERSION} | Simulator Version {APP_VERSION}")
 st.markdown('---')
 
-# Simulation inputs
-shore_type   = st.radio("Shore Type", ["Onshore", "Offshore"])
+### Simulation inputs
+# Market Conditions
+st.markdown('#### Market Conditions')
 xhv_price    = st.number_input("XHV Price", min_value=0.00001, value=0.5, step=0.10)
+xhv_supply   = st.number_input("Number of XHV in circulation", min_value=1.0, value=2.8*10E6, max_value=10E12, step=10000.0)
+xassets_mcap = st.number_input("Market cap of all assets (in USD)", min_value=0.01, value=1.6*10E6, max_value=10E12, step=10000.0)
+
+# Vault Conditions
+st.markdown('#### Vault Conditions')
 xhv_vault    = st.number_input("Amount of unlocked XHV in vault", min_value=0.0, step=10000.0)
 xusd_vault   = st.number_input("Amount of unlocked xUSD in vault", min_value=0.0, step=10000.0)
-xhv_supply   = st.number_input("Number of XHV in circulation", min_value=xhv_vault, value=2.8*10E6, max_value=10E12, step=10000.0)
-xassets_mcap = st.number_input("Market cap of all assets (in USD)", min_value=0.01, value=1.6*10E6, max_value=10E12, step=10000.0)
+
+# Amount to shore
+st.markdown('#### Shoring Conditions')
+shore_type   = st.radio("Shore Type", ["Onshore", "Offshore"])
+shore_unit = "XHV" if shore_type == "Offshore" else "xUSD"
+if not st.checkbox(f"{shore_type} maximum {shore_unit}", value=True):
+    max_qty = xhv_vault if shore_type == "Offshore" else xusd_vault
+    amount_to_shore = st.number_input(
+        label=f"Amount of {shore_unit} to {shore_type.lower()}", 
+        min_value=0.0, max_value=max_qty,
+        step=float(max(int(0.1 * max_qty), 1)),
+    )
 
 col1a, col2a = st.columns([1,3], gap="small")
 # button to add simulation
