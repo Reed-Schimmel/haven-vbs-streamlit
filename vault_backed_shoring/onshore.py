@@ -325,6 +325,7 @@ def max_onshore(
         results['Error Message'] = 'onshore amount greater than block limit' # -3
         return results
 
+    total_collateral = specific_onshore(xhv_vault, xhv_to_offshore, xusd_vault, final_xusd_to_onshore, xhv_price, xhv_supply, xassets_mcap, static_parameters, ignore_errors=True)['Collateral Needed (XHV)']
     results.update({
         'Max Onshore xUSD': final_xusd_to_onshore,
 
