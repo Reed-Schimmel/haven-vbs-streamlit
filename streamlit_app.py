@@ -115,3 +115,7 @@ if st.session_state['simulation_list'] != []:
         if st.button(label="Reset"):
             st.session_state['simulation_list'] = []
             st.experimental_rerun()
+
+
+### FOOTER
+# https://spongebob.fandom.com/wiki/Can_You_Spare_a_Dime%3F#Production
