@@ -10,6 +10,7 @@ from . import max_offshore, specific_offshore, max_onshore, specific_onshore
 # TODO: add st.cache
 def shore(
     shore_type,
+    amount_to_shore,
     xhv_price,
     xhv_vault,
     xusd_vault,
@@ -75,13 +76,22 @@ def shore(
     # assert(xhv_mcap > 0)
 
     if shore_type == "Onshore":
-        results = max_onshore(xhv_vault, xusd_vault, xhv_price, xhv_supply, xassets_mcap, static_parameters) # TODOing
+        if amount_to_shore == "max":
+            results = max_onshore(xhv_vault, xusd_vault, xhv_price, xhv_supply, xassets_mcap, static_parameters)
+        else:
+            xhv_to_offshore = 0
+            xusd_to_onshore = amount_to_shore
+            results = specific_onshore(xhv_vault, xhv_to_offshore, xusd_vault, xusd_to_onshore, xhv_price, xhv_supply, xassets_mcap, static_parameters)
     elif shore_type == "Offshore":
-        results = max_offshore(xhv_vault, xusd_vault, xhv_price, xhv_supply, xassets_mcap, static_parameters) # TODO
-
+        if amount_to_shore == "max":
+            results = max_offshore(xhv_vault, xusd_vault, xhv_price, xhv_supply, xassets_mcap, static_parameters)
+        else:
+            xhv_to_offshore = amount_to_shore
+            xusd_to_onshore = 0
+            results = specific_offshore(xhv_vault, xhv_to_offshore, xusd_vault, xusd_to_onshore, xhv_price, xhv_supply, xassets_mcap, static_parameters)
     # Simulation Values
     sim = {
-        "Shore Type": shore_type,
+        "Shore Type": results['Shore Type'],#shore_type,
         "XHV (vault)": xhv_vault,
         "xUSD (vault)": xusd_vault,
         "XHV Supply": xhv_supply,

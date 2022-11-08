@@ -120,7 +120,7 @@ def max_offshore(
 
     xhv_mcap = xhv_price * xhv_supply
     results = {
-        'Shore Type': 'Offshore',
+        'Shore Type': 'Offshore Max',
         'XHV (vault)': xhv_vault,
         # 'XHV to offshore': xhv_to_offshore,
         'xUSD (vault)': xusd_vault,
