@@ -25,3 +25,7 @@ Run simulations with this Streamlit App
 # Documentation
 - https://docs.streamlit.io/knowledge-base/using-streamlit/how-do-i-run-my-streamlit-script
 - https://github.com/GokuMohandas/mlops-course
+
+---
+Ideas:
+- Fetch XHV price via https://github.com/man-c/pycoingecko

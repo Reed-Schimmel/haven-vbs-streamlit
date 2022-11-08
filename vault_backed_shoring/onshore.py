@@ -207,7 +207,7 @@ def max_onshore(
     xhv_mcap = xhv_price * xhv_supply
 
     results = {
-        'Shore Type': 'Onshore',
+        'Shore Type': 'Onshore Max',
         'XHV (vault)': xhv_vault,
         # 'XHV to offshore': xhv_to_offshore,
         'xUSD (vault)': xusd_vault,
@@ -230,8 +230,10 @@ def max_onshore(
     }
 
     # return results # TODO: confirm tests workin
-
-    if (max(xusd_vault / xhv_price, xhv_vault) < static_parameters['min_shore_amount']):
+    if xhv_vault < static_parameters['min_shore_amount']:
+        results['Error Message'] = 'not enough unlocked funds to onshore' # -1
+        return results
+    if xusd_vault / xhv_price < static_parameters['min_shore_amount']:
         results['Error Message'] = 'not enough unlocked funds to onshore' # -1
         return results
 
@@ -325,6 +327,7 @@ def max_onshore(
         results['Error Message'] = 'onshore amount greater than block limit' # -3
         return results
 
+    total_collateral = specific_onshore(xhv_vault, xhv_to_offshore, xusd_vault, final_xusd_to_onshore, xhv_price, xhv_supply, xassets_mcap, static_parameters, ignore_errors=True)['Collateral Needed (XHV)']
     results.update({
         'Max Onshore xUSD': final_xusd_to_onshore,
 

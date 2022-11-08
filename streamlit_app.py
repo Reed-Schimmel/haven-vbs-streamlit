@@ -9,7 +9,7 @@ def convert_df(df):
     # IMPORTANT: Cache the conversion to prevent computation on every rerun
     return df.to_csv().encode('utf-8')
 
-APP_VERSION = "0.2.1" # TODO: grab this from setup.py or whatever https://stackoverflow.com/questions/2058802/how-can-i-get-the-version-defined-in-setup-py-setuptools-in-my-package
+APP_VERSION = "0.3.0" # TODO: grab this from setup.py or whatever https://stackoverflow.com/questions/2058802/how-can-i-get-the-version-defined-in-setup-py-setuptools-in-my-package
 PROPOSAL_VERSION = 4
 # TESTING = True
 
@@ -67,7 +67,8 @@ xusd_vault   = st.number_input("Unlocked xUSD", min_value=0.0, step=10000.0)
 st.markdown('#### Shoring Conditions')
 shore_type   = st.radio("Shore Type", ["Onshore", "Offshore"])
 shore_unit = "XHV" if shore_type == "Offshore" else "xUSD"
-if not st.checkbox(f"{shore_type} maximum {shore_unit}", value=True, disabled=True):
+is_max = st.checkbox(f"{shore_type} maximum {shore_unit}", value=True, disabled=False)
+if not is_max:
     max_qty = xhv_vault if shore_type == "Offshore" else xusd_vault
     amount_to_shore = st.number_input(
         label=f"Amount of {shore_unit} to {shore_type.lower()}", 
@@ -80,14 +81,16 @@ col1a, col2a = st.columns([1,3], gap="small")
 with col1a:
     if st.button(label="Add simulation to table"):
         sim = shore(
-            shore_type,
-            xhv_price,
-            xhv_vault,
-            xusd_vault,
-            xhv_supply,
-            xassets_mcap,
+            shore_type=shore_type,
+            amount_to_shore="max" if is_max else amount_to_shore,
+            xhv_price=xhv_price,
+            xhv_vault=xhv_vault,
+            xusd_vault=xusd_vault,
+            xhv_supply=xhv_supply,
+            xassets_mcap=xassets_mcap,
             static_parameters=st.session_state['static_parameters'],
         )
+
         st.session_state['simulation_list'].append(sim)
 
 if st.session_state['simulation_list'] != []:
@@ -103,7 +106,7 @@ if st.session_state['simulation_list'] != []:
     with col1b:
         # https://docs.streamlit.io/library/api-reference/widgets/st.download_button
         st.download_button(
-            label="Download data as CSV",
+            label="Download table as CSV",
             data=convert_df(df),
             file_name='VBS_simulations.csv',
             mime='text/csv',
