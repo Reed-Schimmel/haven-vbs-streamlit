@@ -230,8 +230,10 @@ def max_onshore(
     }
 
     # return results # TODO: confirm tests workin
-
-    if (max(xusd_vault / xhv_price, xhv_vault) < static_parameters['min_shore_amount']):
+    if xhv_vault < static_parameters['min_shore_amount']:
+        results['Error Message'] = 'not enough unlocked funds to onshore' # -1
+        return results
+    if xusd_vault / xhv_price < static_parameters['min_shore_amount']:
         results['Error Message'] = 'not enough unlocked funds to onshore' # -1
         return results
 
