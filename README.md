@@ -1,7 +1,7 @@
 # Haven 3.0 Tokenomics Proposal Playground
 Run simulations with this Streamlit App
 - [Repo](https://github.com/Reed-Schimmel/haven-vbs-streamlit)
-- [Web App](https://reed-schimmel-haven-vbs-streamlit-streamlit-app-w1mn16.streamlitapp.com/)
+- [Web App](https://vbs-simulator.streamlit.app/)
 
 ## Haven Blog Posts
 - [Haven 3.0 Tokenomics Proposal (light)](https://havenprotocol.org/2022/10/03/haven-3-0-tokenomics-proposal-light/)
