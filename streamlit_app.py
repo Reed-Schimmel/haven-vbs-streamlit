@@ -9,7 +9,7 @@ def convert_df(df):
     # IMPORTANT: Cache the conversion to prevent computation on every rerun
     return df.to_csv().encode('utf-8')
 
-APP_VERSION = "0.3.0" # TODO: grab this from setup.py or whatever https://stackoverflow.com/questions/2058802/how-can-i-get-the-version-defined-in-setup-py-setuptools-in-my-package
+APP_VERSION = "0.3.1" # TODO: grab this from setup.py or whatever https://stackoverflow.com/questions/2058802/how-can-i-get-the-version-defined-in-setup-py-setuptools-in-my-package
 PROPOSAL_VERSION = 4
 # TESTING = True
 
@@ -115,3 +115,17 @@ if st.session_state['simulation_list'] != []:
         if st.button(label="Reset"):
             st.session_state['simulation_list'] = []
             st.experimental_rerun()
+
+
+### FOOTER
+# https://spongebob.fandom.com/wiki/Can_You_Spare_a_Dime%3F#Production
+st.markdown('''
+---
+##### Donations:\n
+*VBS Simulator* is developed* and maintained by the volunteer efforts of [Reed Schimmel](https://github.com/Reed-Schimmel).\n
+- Haven: hvxyCn1Umq3PuQ7pWzixJnFtZNeDTfy8tQE3DjKLZ8pt8gvcqP9A3UCi6PizS2d19dZkdNMVzsPxhLoYSkLdDQLd8Xqbrrn3PX
+- Monero: 87L9AVmqrPATUCJnHrJkPBZGM27qN5BxY7uwDJQ6XSCw4VRtYFY5Lpw2Rt9ZxU5nFiev9hvyP4pbD8RD4EMQh9d9H9LNaUA
+
+\* In collaboration with **Community Manager
+Contributor [xKleinroy](https://havenprotocol.org/team/)**, who generously provided pseudocode and quality assurance.
+''')
