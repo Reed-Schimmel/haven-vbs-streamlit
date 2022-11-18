@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import streamlit as st
 
@@ -90,6 +91,7 @@ with col1a:
             xassets_mcap=xassets_mcap,
             static_parameters=st.session_state['static_parameters'],
         )
+        sim[f"{shore_unit} to {shore_type.lower()}"] = np.nan if is_max else amount_to_shore
 
         st.session_state['simulation_list'].append(sim)
 

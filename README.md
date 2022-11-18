@@ -28,6 +28,7 @@ Run simulations with this Streamlit App
 - https://github.com/GokuMohandas/mlops-course
 
 # Future Ideas:
+- [x] It would be useful to add a column in the simulation table for the specific amount you can to onshore or offshore, otherwise you lose that information if you add more than one simation to the table.
 - Fetch XHV price via https://github.com/man-c/pycoingecko
 
 # Donations:
