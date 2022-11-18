@@ -3,13 +3,14 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
+from . import SUPPRESS_ALL_CACHE_WARNINGS
 from .base import calc_block_cap, calc_current_vbs, calc_slippage_vbs
 
 OFFSHORE_ACC_THRESH = 0.0001
 
-# TODO: add st.cache
 #  function working out the amount of collateral required for offshores
 # def specific_offshore(xhv_qty, xhv_mcap, block_cap, slippage_mult):
+@st.cache(suppress_st_warning=SUPPRESS_ALL_CACHE_WARNINGS)
 def specific_offshore( # TODO: restore docstring
     xhv_vault,
     xhv_to_offshore,
@@ -105,6 +106,7 @@ def specific_offshore( # TODO: restore docstring
     })
     return results
 
+@st.cache(suppress_st_warning=SUPPRESS_ALL_CACHE_WARNINGS)
 def max_offshore(
     xhv_vault,
     xusd_vault,

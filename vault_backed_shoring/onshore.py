@@ -3,12 +3,13 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
+from . import SUPPRESS_ALL_CACHE_WARNINGS
 from .base import calc_block_cap
 
 ONSHORE_ACC_THRESH = 0.0005
 
-# TODO: add st.cache
 # function working out the amount of collateral required for onshores
+@st.cache(suppress_st_warning=SUPPRESS_ALL_CACHE_WARNINGS)
 def specific_onshore(
     xhv_vault,
     xhv_to_offshore,
@@ -164,6 +165,7 @@ def specific_onshore(
     return results
 
 # function working out the maximum amount of xUSD that can be onshored
+@st.cache(suppress_st_warning=SUPPRESS_ALL_CACHE_WARNINGS)
 def max_onshore(
     xhv_vault, # Unlocked
     # xhv_to_offshore,
