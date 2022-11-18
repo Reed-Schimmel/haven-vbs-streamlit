@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import streamlit as st
 
@@ -9,7 +10,7 @@ def convert_df(df):
     # IMPORTANT: Cache the conversion to prevent computation on every rerun
     return df.to_csv().encode('utf-8')
 
-APP_VERSION = "0.3.1" # TODO: grab this from setup.py or whatever https://stackoverflow.com/questions/2058802/how-can-i-get-the-version-defined-in-setup-py-setuptools-in-my-package
+APP_VERSION = "0.3.3" # TODO: grab this from setup.py or whatever https://stackoverflow.com/questions/2058802/how-can-i-get-the-version-defined-in-setup-py-setuptools-in-my-package
 PROPOSAL_VERSION = 4
 # TESTING = True
 
@@ -90,6 +91,7 @@ with col1a:
             xassets_mcap=xassets_mcap,
             static_parameters=st.session_state['static_parameters'],
         )
+        sim[f"{shore_unit} to {shore_type.lower()}"] = np.nan if is_max else amount_to_shore
 
         st.session_state['simulation_list'].append(sim)
 
