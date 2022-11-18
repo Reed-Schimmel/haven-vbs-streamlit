@@ -242,8 +242,8 @@ def max_onshore(
     # by passing “true” in the function, it will ignore some error messages in the calling
     # function, which will need to be verified in this function
 
-    xhv_to_offshore = 0 # TODO
-    xusd_to_onshore = xusd_vault # TODO confirm
+    xhv_to_offshore = 0
+    xusd_to_onshore = xusd_vault
     spec_results = specific_onshore(xhv_vault, xhv_to_offshore, xusd_vault, xusd_to_onshore, xhv_price, xhv_supply, xassets_mcap, static_parameters, ignore_errors=True)
     total_collateral = spec_results['Collateral Needed (XHV)']
 
@@ -318,8 +318,10 @@ def max_onshore(
             # add additional onshore amount to existing amount
             temp_xusd_to_onshore += additional_onshore
         
-    # this is the final max onshore amount (declared a new variable for clarity only)
-    final_xusd_to_onshore = temp_xusd_to_onshore
+    # this is the final max onshore amount
+    # If the temp amount is greater than the unlocked xUSD in the vault,
+    # set the final amount to the amount unlocked in the vault.
+    final_xusd_to_onshore = min(temp_xusd_to_onshore, xusd_vault)
     if (final_xusd_to_onshore / xhv_price) < static_parameters['min_shore_amount']:
         results['Error Message'] = 'incorrect onshore amount' # -2
         return results
@@ -327,16 +329,18 @@ def max_onshore(
         results['Error Message'] = 'onshore amount greater than block limit' # -3
         return results
 
-    total_collateral = specific_onshore(xhv_vault, xhv_to_offshore, xusd_vault, final_xusd_to_onshore, xhv_price, xhv_supply, xassets_mcap, static_parameters, ignore_errors=True)['Collateral Needed (XHV)']
+    # final_spec_results = specific_onshore(xhv_vault, xhv_to_offshore, xusd_vault, temp_xusd_to_onshore, xhv_price, xhv_supply, xassets_mcap, static_parameters, ignore_errors=True)
+    final_spec_results = specific_onshore(xhv_vault, xhv_to_offshore, xusd_vault, final_xusd_to_onshore, xhv_price, xhv_supply, xassets_mcap, static_parameters, ignore_errors=True)
+    total_collateral = final_spec_results['Collateral Needed (XHV)']
     results.update({
-        'Max Onshore xUSD': final_xusd_to_onshore,
+        'Max Onshore xUSD': final_xusd_to_onshore,#final_spec_results['Max Onshore xUSD'],#final_xusd_to_onshore,
 
         # 'Mcap Ratio': mcap_ratio, # line 10 of the csv is wack yo TODO: fix??
         # 'Spread Ratio': spread_ratio,
         # 'Mcap VBS': mcap_vbs, # TODO: problem here?
         # 'Spread VBS': spread_vbs,
         # 'Slippage VBS': slippage_vbs,
-        'Total VBS': temp_results['Total VBS'], #total_vbs, # TODO: confirm with Roy
+        'Total VBS': final_spec_results['Total VBS'], #total_vbs, # TODO: confirm with Roy
         # 'Max Offshore XHV': -1,
         'Collateral Needed (XHV)': total_collateral,
     })
