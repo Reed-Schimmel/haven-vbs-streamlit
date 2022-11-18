@@ -242,8 +242,8 @@ def max_onshore(
     # by passing “true” in the function, it will ignore some error messages in the calling
     # function, which will need to be verified in this function
 
-    xhv_to_offshore = 0 # TODO
-    xusd_to_onshore = xusd_vault # TODO confirm
+    xhv_to_offshore = 0
+    xusd_to_onshore = xusd_vault
     spec_results = specific_onshore(xhv_vault, xhv_to_offshore, xusd_vault, xusd_to_onshore, xhv_price, xhv_supply, xassets_mcap, static_parameters, ignore_errors=True)
     total_collateral = spec_results['Collateral Needed (XHV)']
 
