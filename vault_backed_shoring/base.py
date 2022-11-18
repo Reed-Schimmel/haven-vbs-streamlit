@@ -1,6 +1,6 @@
 import math
 
-SUPPRESS_ALL_CACHE_WARNINGS = False
+SUPPRESS_ALL_CACHE_WARNINGS = True # TODO: change to false if dev mode and true is prod mode
 
 # v2
 def calc_block_cap(xhv_mcap, xhv_supply, block_cap_mult=3000, block_cap_exp=0.42, supply_pct=0.005):
