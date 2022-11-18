@@ -3,11 +3,11 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
+from .base import SUPPRESS_ALL_CACHE_WARNINGS
 from . import max_offshore, specific_offshore, max_onshore, specific_onshore
 # from vault_backed_shoring import max_offshore, specific_offshore, max_onshore, specific_onshore
 
-
-# TODO: add st.cache
+# @st.cache(suppress_st_warning=SUPPRESS_ALL_CACHE_WARNINGS)
 def shore(
     shore_type,
     amount_to_shore,

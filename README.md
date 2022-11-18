@@ -28,8 +28,8 @@ Run simulations with this Streamlit App
 - https://github.com/GokuMohandas/mlops-course
 
 # Future Ideas:
-- [x] It would be useful to add a column in the simulation table for the specific amount you can to onshore or offshore, otherwise you lose that information if you add more than one simation to the table.
 - Fetch XHV price via https://github.com/man-c/pycoingecko
+- benchmark caching to see if it helps or hurts
 
 # Donations:
 *VBS Simulator* is developed\* and maintained by the volunteer efforts of [Reed Schimmel](https://github.com/Reed-Schimmel).
