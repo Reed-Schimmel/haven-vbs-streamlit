@@ -3,8 +3,7 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
-from . import SUPPRESS_ALL_CACHE_WARNINGS
-from .base import calc_block_cap, calc_current_vbs, calc_slippage_vbs
+from .base import calc_block_cap, calc_current_vbs, calc_slippage_vbs, SUPPRESS_ALL_CACHE_WARNINGS
 
 OFFSHORE_ACC_THRESH = 0.0001
 

@@ -3,8 +3,7 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
-from . import SUPPRESS_ALL_CACHE_WARNINGS
-from .base import calc_block_cap
+from .base import calc_block_cap, SUPPRESS_ALL_CACHE_WARNINGS
 
 ONSHORE_ACC_THRESH = 0.0005
 
