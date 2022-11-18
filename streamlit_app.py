@@ -121,7 +121,11 @@ if st.session_state['simulation_list'] != []:
 # https://spongebob.fandom.com/wiki/Can_You_Spare_a_Dime%3F#Production
 st.markdown('''
 ---
-*VBS Simulator* was developed by the volunteer.\n
-hvxyCn1Umq3PuQ7pWzixJnFtZNeDTfy8tQE3DjKLZ8pt8gvcqP9A3UCi6PizS2d19dZkdNMVzsPxhLoYSkLdDQLd8Xqbrrn3PX
+##### Donations:\n
+*VBS Simulator* is developed* and maintained by the volunteer efforts of [Reed Schimmel](https://github.com/Reed-Schimmel).\n
+- Haven: hvxyCn1Umq3PuQ7pWzixJnFtZNeDTfy8tQE3DjKLZ8pt8gvcqP9A3UCi6PizS2d19dZkdNMVzsPxhLoYSkLdDQLd8Xqbrrn3PX
+- Monero: 87L9AVmqrPATUCJnHrJkPBZGM27qN5BxY7uwDJQ6XSCw4VRtYFY5Lpw2Rt9ZxU5nFiev9hvyP4pbD8RD4EMQh9d9H9LNaUA
 
+\* In collaboration with **Community Manager
+Contributor [xKleinroy](https://havenprotocol.org/team/)**, who generously provided pseudocode and quality assurance.
 ''')
