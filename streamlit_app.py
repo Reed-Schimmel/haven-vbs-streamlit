@@ -119,3 +119,9 @@ if st.session_state['simulation_list'] != []:
 
 ### FOOTER
 # https://spongebob.fandom.com/wiki/Can_You_Spare_a_Dime%3F#Production
+st.markdown('''
+---
+*VBS Simulator* was developed by the volunteer.\n
+hvxyCn1Umq3PuQ7pWzixJnFtZNeDTfy8tQE3DjKLZ8pt8gvcqP9A3UCi6PizS2d19dZkdNMVzsPxhLoYSkLdDQLd8Xqbrrn3PX
+
+''')
