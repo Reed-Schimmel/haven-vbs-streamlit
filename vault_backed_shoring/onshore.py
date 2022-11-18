@@ -66,14 +66,14 @@ def specific_onshore(
         'Spread VBS': 0,
         'Slippage VBS': 0,
         'Total VBS': 0,
-        'Max Offshore XHV': 0,
-        'Max Onshore xUSD': 0,
+        'Max Offshore XHV': np.nan,
+        'Max Onshore xUSD': np.nan,
         'Collateral Needed (XHV)': 0,
         'Error Message': np.nan,
     }
 
 
-    if (not ignore_errors) and amount_to_onshore_xhv > xusd_vault:
+    if (not ignore_errors) and xusd_to_onshore > xusd_vault:
         results['Error Message'] = 'not enough xUSD available to onshore'
         return results
     if (not ignore_errors) and amount_to_onshore_xhv < static_parameters['min_shore_amount']:
